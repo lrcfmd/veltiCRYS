@@ -1,0 +1,23 @@
+# Ignore all
+*
+
+# Whitelist file
+!.gitignore
+
+# Whitelist code
+!*.py
+
+# Whitelist folders and modules
+!pysrc/
+!cysrc/
+!pysrc/*
+!cysrc/*.p*
+!pysrc/*.py
+
+# Whitelist README
+!README.txt
+!README.md
+
+# Whitelist environment requirements
+!requirements.txt
+
