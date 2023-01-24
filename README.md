@@ -1,8 +1,8 @@
 
-SIESta
+veltiCRYS
 ===============
 
-SIESta is a collection of modules with functions useful for geometry optimisation of ionic structures. It involves energy calculation with the Buckingham-Coulomb energy function potential and analytic first derivatives along with some local optimisation methods. The input should be a collection of parameters that represents a central unit cell with N ions, including a Nx3 (each row corresponding to a 3-dimensional ion position) and a 3x3 numpy array (each row corresponding to one 3-dimensional lattice vector).
+velti (from βελτιστοποίηση in Greek) for CRYStals is a collection of modules with functions useful for geometry optimisation of ionic structures. It involves energy calculation with the Buckingham-Coulomb energy function potential and analytic first derivatives along with some local optimisation methods. The input should be a collection of parameters that represents a central unit cell with N ions, including a Nx3 (each row corresponding to a 3-dimensional ion position) and a 3x3 numpy array (each row corresponding to one 3-dimensional lattice vector).
 
 The energy and derivative calculations are written in [Cython](https://cython.org/) and optimisation step methods are written in [Python](https://www.python.org/about/).
 
