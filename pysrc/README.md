@@ -29,10 +29,10 @@ This module should be used to define and use line minimization procedures. Each 
 		init_energy, update, max_step=default_value, min_step=default_value, **kwargs)
 
 ```
-The parameter updates are executed with the included function *calculate_temp_energy*. This function applies changes to lattice and ion positions using the *position_update* and *lattice_update* methods and returns a dictionary with the new energy value and the parameters' and step size values that were used for the update. Any parameter change should be performed using the given update methods. 
+The parameter updates are executed with the included function *calculate_temp_energy*. This function applies changes to lattice and ion positions using the `position_update` and `lattice_update` methods and returns a dictionary with the new energy value and the parameters' and step size values that were used for the update. Any parameter change should be performed using the given update methods. 
 
 
-The file currently includes constant step size application (*steady_step* method) and step size scheduling rules:
+The file currently includes constant step size application (`steady_step` method) and step size scheduling rules:
 1. `scheduled_bisection`
 	This rule uses the median of min_step and max_step every scheduled number of iterations. The number of iterations to step size reduction can be defined as kwargs['schedule'] when calling the rule.
 
