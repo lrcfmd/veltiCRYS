@@ -18,6 +18,7 @@ In order for the modules to work you need to have some python packages:
 - pickle
 - cmath
 - matplotlib
+- cython
 
 You also need have installed the jupyter notebook in case you want to use the calculation notebook. Please refer to the [requirements.txt](requirements.txt) file for a Python 3.10 environment description.
 
