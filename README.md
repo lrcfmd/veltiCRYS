@@ -2,9 +2,9 @@
 veltiCRYS
 ===============
 
-velti (from βελτιστοποίηση in Greek) for CRYStals is a collection of modules with functions useful for geometry optimisation of ionic structures. It involves energy calculation with the Buckingham-Coulomb energy function potential and analytic first derivatives along with some local optimisation methods. The input should be a collection of parameters that represents a central unit cell with N ions, including a Nx3 (each row corresponding to a 3-dimensional ion position) and a 3x3 numpy array (each row corresponding to one 3-dimensional lattice vector).
+velti (from βελτιστοποίηση in Greek) for CRYStals is a collection of modules with functions useful for geometry optimization of ionic structures. It involves energy calculation with the Buckingham-Coulomb energy function potential and analytic first derivatives along with some local optimization methods. The input should be a collection of parameters that represents a central unit cell with N ions, including a Nx3 (each row corresponding to a 3-dimensional ion position) and a 3x3 numpy array (each row corresponding to one 3-dimensional lattice vector).
 
-The energy and derivative calculations are written in [Cython](https://cython.org/) and optimisation step methods are written in [Python](https://www.python.org/about/).
+The energy and derivative calculations are written in [Cython](https://cython.org/) and optimization step methods are written in [Python](https://www.python.org/about/).
 
 &nbsp;
 
@@ -160,7 +160,7 @@ _________________________
 ###### Descent
 _________________________
 
-You can always import the Descent class from *descent.py* and define an object for running optimisations with 
+You can always import the Descent class from *descent.py* and define an object for running optimizations with 
 
 ```python
   descent = Descent()
@@ -178,7 +178,7 @@ Arguments of this function include (all optional):
 | gmax             | Gradient component tolerance                 |
 
 
-The method that executes the optimisation is
+The method that executes the optimization is
 
 ```python
   repeat(self, init_energy, atoms, potentials, outdir, outfile,
