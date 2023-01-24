@@ -81,6 +81,8 @@ _________________________
 ###### Coulomb energy
 _________________________
 
+This is the electrostatic energy existing due to oppositely charged ions in the structure. It is a summation of terms each one of which corresponds to a pairwise interaction dependent on the ions' distance. The alpha parameter depends on the cutoff values and is defined according to [Catlow's work](https://www.tandfonline.com/doi/abs/10.1080/08927028808080944). The cutoff value is then used in the `inflated_cell_truncation` method of [cutoff.pxd](cysrc/cutoff.pxd), a proposed geometric method of finding the images of neighbouring ions.
+
 ```python
   Cpot = Coulomb(chemical_symbols, N, charge_dict, alpha, filename)
 
@@ -100,6 +102,13 @@ Arguments of this function include:
 _________________________
 ###### Buckingham energy
 _________________________
+
+Buckingham energy potential accounts for Pauli repulsion energy and van der Waals energy between of two  atoms as a function of the interatomic distance between them.  The two terms of each Buckingham summand represent repulsion and attraction respectively. Parameters A,C and ρ are emperically determined in literature. These have to be defined in a library file (here *buck.lib*) in the following format:
+```
+buck
+element_name_1a core element_name_1b core  A   ρ C min_dist max_dist
+element_name_2a core element_name_2b core  A   ρ C min_dist max_dist
+```
 
 ```python 
   Bpot = Buckingham(filename, chemical_symbols, alpha, radius_lib, radii, limit)
