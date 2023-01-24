@@ -2,9 +2,9 @@
 veltiCRYS
 ===============
 
-velti (from βελτιστοποίηση in Greek) for CRYStals is a collection of modules with functions useful for geometry optimisation of ionic structures. It involves energy calculation with the Buckingham-Coulomb energy function potential and analytic first derivatives along with some local optimisation methods. The input should be a collection of parameters that represents a central unit cell with N ions, including a Nx3 (each row corresponding to a 3-dimensional ion position) and a 3x3 numpy array (each row corresponding to one 3-dimensional lattice vector).
+velti (from βελτιστοποίηση in Greek) for CRYStals is a collection of modules with functions useful for geometry optimization of ionic structures. It involves energy calculation with the Buckingham-Coulomb energy function potential and analytic first derivatives along with some local optimization methods. The input should be a collection of parameters that represents a central unit cell with N ions, including a Nx3 (each row corresponding to a 3-dimensional ion position) and a 3x3 numpy array (each row corresponding to one 3-dimensional lattice vector).
 
-The energy and derivative calculations are written in [Cython](https://cython.org/) and optimisation step methods are written in [Python](https://www.python.org/about/).
+The energy and derivative calculations are written in [Cython](https://cython.org/) and optimization step methods are written in [Python](https://www.python.org/about/).
 
 &nbsp;
 
@@ -81,6 +81,8 @@ _________________________
 ###### Coulomb energy
 _________________________
 
+This is the electrostatic energy existing due to oppositely charged ions in the structure. It is a summation of terms each one of which corresponds to a pairwise interaction dependent on the ions' distance. The alpha parameter depends on the cutoff values and is defined according to [Catlow's work](https://www.tandfonline.com/doi/abs/10.1080/08927028808080944). The cutoff value is then used in the `inflated_cell_truncation` method of [cutoff.pxd](cysrc/cutoff.pxd), a proposed geometric method of finding the images of neighbouring ions.
+
 ```python
   Cpot = Coulomb(chemical_symbols, N, charge_dict, alpha, filename)
 
@@ -100,6 +102,13 @@ Arguments of this function include:
 _________________________
 ###### Buckingham energy
 _________________________
+
+Buckingham energy potential accounts for Pauli repulsion energy and van der Waals energy between two  atoms as a function of the interatomic distance between them.  The two terms of each Buckingham summand represent repulsion and attraction respectively. Parameters A,C and ρ are emperically determined in literature. These have to be defined in a library file (here *buck.lib*) in the following format:
+```
+buck
+element_name_1a core element_name_1b core  A   ρ C min_dist max_dist
+element_name_2a core element_name_2b core  A   ρ C min_dist max_dist
+```
 
 ```python 
   Bpot = Buckingham(filename, chemical_symbols, alpha, radius_lib, radii, limit)
@@ -151,7 +160,7 @@ _________________________
 ###### Descent
 _________________________
 
-You can always import the Descent class from *descent.py* and define an object for running optimisations with 
+You can always import the Descent class from *descent.py* and define an object for running optimizations with 
 
 ```python
   descent = Descent()
@@ -169,7 +178,7 @@ Arguments of this function include (all optional):
 | gmax             | Gradient component tolerance                 |
 
 
-The method that executes the optimisation is
+The method that executes the optimization is
 
 ```python
   repeat(self, init_energy, atoms, potentials, outdir, outfile,
