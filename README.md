@@ -154,7 +154,7 @@ Arguments of these functions include:
 | atoms            | Object of ase Atoms class (optional)         |
 
 
-Both energy (*calc*) and derivatives (*calc_drv*) can be calculated  either by defining parameters *N*, *pos_array*, *vects_array* or *atoms*.
+Both energy (`calc`) and derivatives (`calc_drv`) can be calculated  either by defining parameters *N*, *pos_array*, *vects_array* or *atoms*.
 
 _________________________
 ###### Descent
