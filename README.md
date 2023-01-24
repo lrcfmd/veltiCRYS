@@ -134,7 +134,7 @@ Both classes need to be set with cutoff parameters using method
   set_cutoff_parameters(self, vects, N, accuracy, real, reciprocal)
 
 ```
-before each energy calculation, if the unit cell undergoes any changes. The cutoff values are then used to calculate pairwise distances of ions in neighbouring cells using the *inflated_cell_truncation method* in [cutoff.pyx](cysrc/cutoff.pyx). Each class contains also the methods
+before each energy calculation, if the unit cell undergoes any changes. The cutoff values are then used to calculate pairwise distances of ions in neighbouring cells using the `inflated_cell_truncation method` in [cutoff.pyx](cysrc/cutoff.pyx). Each class contains also the methods
 
 ```python
   print_parameters(self)
@@ -154,13 +154,13 @@ Arguments of these functions include:
 | atoms            | Object of ase Atoms class (optional)         |
 
 
-Both energy (`calc`) and derivatives (`calc_drv`) can be calculated  either by defining parameters *N*, *pos_array*, *vects_array* or *atoms*.
+Both energy (`calc`) and derivatives (`calc_drv`) can be calculated  either by defining parameters `N, pos_array, vects_array` or `atoms`.
 
 _________________________
 ###### Descent
 _________________________
 
-You can always import the Descent class from *descent.py* and define an object for running optimizations with 
+You can always import the Descent class from [descent.py](descent.py) and define an object for running optimizations with 
 
 ```python
   descent = Descent()
