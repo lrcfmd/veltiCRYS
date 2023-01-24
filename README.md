@@ -103,7 +103,7 @@ _________________________
 ###### Buckingham energy
 _________________________
 
-Buckingham energy potential accounts for Pauli repulsion energy and van der Waals energy between of two  atoms as a function of the interatomic distance between them.  The two terms of each Buckingham summand represent repulsion and attraction respectively. Parameters A,C and ρ are emperically determined in literature. These have to be defined in a library file (here *buck.lib*) in the following format:
+Buckingham energy potential accounts for Pauli repulsion energy and van der Waals energy between two  atoms as a function of the interatomic distance between them.  The two terms of each Buckingham summand represent repulsion and attraction respectively. Parameters A,C and ρ are emperically determined in literature. These have to be defined in a library file (here *buck.lib*) in the following format:
 ```
 buck
 element_name_1a core element_name_1b core  A   ρ C min_dist max_dist
