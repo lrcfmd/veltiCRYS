@@ -1,41 +1,47 @@
-# Switch Implementation
-This repo is intended to hold all necessary parts of a crystal structure relaxation algorithm which switches from first to second order optimisation method. It includes implementations of Buckingham-Coulomb potential, the energy function's analytical derivatives and versions of the following methods (in progress):
+### Python scripts
 
-* Conjugate Gradient
+This package includes Python scripts that tie the Cython implementations together in order to produce an optimization run. More specifically, it consists of the following:
 
-## potential.py
+* [direction.py](direction.py)
 
-Includes a *Potential* superclass and *Coulomb*, *Buckingham* as subclasses. One can set the respective required parameters with 
-
-```
-set_parameters(alpha, real_cut_off, recip_cut_off, chemical_symbols, charge_dict, filename)
-```
-for Coulomb and 
-```
-set_parameters(self, filename, chemical_symbols)
-```
-for Buckingham. The resulting energy is calculated by summing the returned values as below:
-```
-Coulomb.calc(Atoms atoms) + Buckingham.calc(Atoms atoms)
-```
-
-## forces.py
-
-This file follows the same logic as before with a *Forces* superclass and *DCoulomb*, *DBuckingham* subclasses. The full gradient is calculated with the following calls:
+This module includes methods that implement nonlinear Gradient Descent (GD) and Conjugate Gradient (CG) direction updates. CG is implemented with the Polak–Ribière formula.
+GD needs only the function's gradient in order to run properly:
+```python
+	GD(grad)
 
 ```
-DCoulomb.calc_real(pos, vects, N) + DCoulomb.calc_recip(pos,vects, N) + DBuckinham.calc(pos, vects, N)
+
+whereas CG needs the current and previous residual of the function, as well as the last direction vector:
+```python
+	CG(grad, Residual=last_residual, Direction=last_direction)
+
 ```
-where *pos* is Nx3 array of the ions' positions, *vects* is a 3x3 array with the vectors describing the unit cell and N is the number of ions.
+
+* [finite_differences.py](finite_differences.py)
+
+This script can be used for debugging purposes. It calculates the first derivative of a given function usibg finite differences and compares the result to the given analytical gradient.
+
+* [linmin.py](linmin.py)
+
+This module should be used to define and use line minimization procedures. Each procedure needs to follow a certain signature type in order to be compatible with the rest of the software:
+```python
+	linmin_example(atoms, strains, grad, gnorm, direction, potentials,
+		init_energy, update, max_step=default_value, min_step=default_value, **kwargs)
+
+```
+The parameter updates are executed with the included function *calculate_temp_energy*. This function applies changes to lattice and ion positions using the *position_update* and *lattice_update* methods and returns a dictionary with the new energy value and the parameters' and step size values that were used for the update. Any parameter change should be performed using the given update methods. 
 
 
-## calculate_energy.py
+The file currently includes constant step size application (*steady_step* method) and step size scheduling rules:
+1. `scheduled_bisection`
+	This rule uses the median of min_step and max_step every scheduled number of iterations. The number of iterations to step size reduction can be defined as kwargs['schedule'] when calling the rule.
 
-Various calculations including energy, gradient, finite differences to compare with the values of the gradient vector. The energy can be computed using different software and can be printed with a pre-configured template. The program can be run with input file using the *-i* flag or with hard-coded structures.
+2. `scheduled_exp`
+	This rule takes a max_step and mutliplies it by 0.999 at every iteration as long as max_step\*0.999>min_step.
 
-### Notes for external software
+3. `gnorm_scheduled_bisection`
+	This rule uses the median of min_step and max_step whenever the gradient norm of a given function falls by an order of magnitude β. The size of the order of magnitude is defined in the main body of the optimization run. For example, if the gradient norm is initially 0.01 but in the next iteration becomes 0.001 and β=10 then the next step size value used will be (min_step+max_step)/2. 
 
-In order to use LAMMPS as a library through python:
-- create a conda environment with python 3.7
-- install ase and lammps
-- set variable ASE_LAMMPS_RUN_COMMAND
+* [utils.py](utils.py)
+
+This module consists of simple methods for formatting appearance of outputs and input wrappers.
