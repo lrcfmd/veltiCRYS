@@ -8,7 +8,7 @@ The energy and derivative calculations are written in [Cython](https://cython.or
 
 &nbsp;
 
-# Dependencies
+## Dependencies
 
 In order for the modules to work you need to have some python packages:
 
@@ -24,7 +24,7 @@ You also need have installed the jupyter notebook in case you want to use the ca
 
 &nbsp;
 
-# Installation
+## Installation
 
 In order to install the package, please clone this project and run the following command inside the main folder of the repository:
 
@@ -35,7 +35,7 @@ In order to install the package, please clone this project and run the following
 ```
 &nbsp;
 
-# Execution
+## Execution
 
 
 In order to perform a geometry optimization experiment, run the Python script in file [calculate_energy.py](calculate_energy.py) with
@@ -66,7 +66,7 @@ You will need to add the necessary elements with their charge in **charge_dict**
 Alternatively, you can open the jupyter notebook file [run.ipynb](run.ipynb).
 
 
-## Classes 
+### Classes 
 
 The essential classes for energy calculation are the Cython extension types Coulomb and Buckingham. These include methods for evaluating both of the energy potentials using the Ewald summation expansion. They can be accessed by adding the following lines to a Python script:
 
@@ -80,7 +80,7 @@ The class objects are defined as follows:
 
 &nbsp;
 
-###### Coulomb energy
+#### Coulomb energy
 _________________________
 
 This is the electrostatic energy existing due to oppositely charged ions in the structure. It is a summation of terms each one of which corresponds to a pairwise interaction dependent on the ions' distance. The alpha parameter depends on the cutoff values and is defined according to [Catlow's work](https://www.tandfonline.com/doi/abs/10.1080/08927028808080944). The cutoff value is then used in the `inflated_cell_truncation` method of [cutoff.pxd](cysrc/cutoff.pxd), a proposed geometric method of finding the images of neighbouring ions.
@@ -103,7 +103,7 @@ Arguments of this function include:
 
 &nbsp;
 
-###### Buckingham energy
+#### Buckingham energy
 _________________________
 
 Buckingham energy potential accounts for Pauli repulsion energy and van der Waals energy between two  atoms as a function of the interatomic distance between them.  The two terms of each Buckingham summand represent repulsion and attraction respectively. Parameters A,C and ρ are emperically determined in literature. These have to be defined in a library file (here *buck.lib*) in the following format:
@@ -162,7 +162,7 @@ Both energy (`calc`) and derivatives (`calc_drv`) can be calculated  either by d
 
 &nbsp;
 
-###### Descent
+#### Descent
 _________________________
 
 This class instantiates the optimization procedure. Its method `repeat` performs repeated iterations `iter_step` of nonlinear minimization. It can be configured with various tolerances that will make up the stopping criteria of the minimization. Every `iter_step` call returns a dictionary with all values related to the current iteration, so that the returning values include the gradient of the current configuration, the new direction vector for the next step, the ion positions' array, the strains tensor, the lattice vectors' array, the iteration number, the step size used, the gradient norm of the current configuration and the energy value of the current configuration
