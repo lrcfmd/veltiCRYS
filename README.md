@@ -8,7 +8,7 @@ The energy and derivative calculations are written in [Cython](https://cython.or
 
 &nbsp;
 
-#### Dependencies
+# Dependencies
 
 In order for the modules to work you need to have some python packages:
 
@@ -24,7 +24,7 @@ You also need have installed the jupyter notebook in case you want to use the ca
 
 &nbsp;
 
-#### Installation
+# Installation
 
 In order to install the package, please clone this project and run the following command inside the main folder of the repository:
 
@@ -35,7 +35,7 @@ In order to install the package, please clone this project and run the following
 ```
 &nbsp;
 
-#### Execution
+# Execution
 
 
 In order to perform a geometry optimization experiment, run the Python script in file [calculate_energy.py](calculate_energy.py) with
@@ -66,7 +66,7 @@ You will need to add the necessary elements with their charge in **charge_dict**
 Alternatively, you can open the jupyter notebook file [run.ipynb](run.ipynb).
 
 
-##### Classes 
+## Classes 
 
 The essential classes for energy calculation are the Cython extension types Coulomb and Buckingham. These include methods for evaluating both of the energy potentials using the Ewald summation expansion. They can be accessed by adding the following lines to a Python script:
 
@@ -77,7 +77,9 @@ The essential classes for energy calculation are the Cython extension types Coul
 ```
 
 The class objects are defined as follows:
-_________________________
+
+&nbsp;
+
 ###### Coulomb energy
 _________________________
 
@@ -99,7 +101,8 @@ Arguments of this function include:
 | alpha            | Balance between reciprocal and real space (optional)  |
 
 
-_________________________
+&nbsp;
+
 ###### Buckingham energy
 _________________________
 
@@ -127,6 +130,7 @@ Arguments of this function include:
 | alpha           | Balance between reciprocal and real space (optional)   |
   
 
+&nbsp;
 
 Both classes need to be set with cutoff parameters using method
 
@@ -156,10 +160,12 @@ Arguments of these functions include:
 
 Both energy (`calc`) and derivatives (`calc_drv`) can be calculated  either by defining parameters `N, pos_array, vects_array` or `atoms`.
 
-_________________________
+&nbsp;
+
 ###### Descent
 _________________________
 
+This class instantiates the optimization procedure. Its method `repeat` performs repeated iterations `iter_step` of nonlinear minimization. It can be configured with various tolerances that will make up the stopping criteria of the minimization. Every `iter_step` call returns a dictionary with all values related to the current iteration, so that the returning values include the gradient of the current configuration, the new direction vector for the next step, the ion positions' array, the strains tensor, the lattice vectors' array, the iteration number, the step size used, the gradient norm of the current configuration and the energy value of the current configuration
 You can always import the Descent class from [descent.py](descent.py) and define an object for running optimizations with 
 
 ```python
