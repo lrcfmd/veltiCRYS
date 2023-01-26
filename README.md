@@ -61,7 +61,7 @@ In order to perform a geometry optimization experiment, run the Python script in
 
 ```
 
-You will need to add the necessary elements with their charge in **charge_dict** of file *calculate_energy* and adjust the corresponding input paths in **DATAPATH** of *utils.py*. **DATAPATH** needs to contain the library files *buck.lib* with the Buckingham parameters and *radii.lib* with the radii information of the element ions in a folder *Libraries*.
+You will need to add the necessary elements with their charge in **charge_dict** of file *calculate_energy* and adjust the corresponding input paths in **DATAPATH** of *utils.py*. **DATAPATH** needs to contain the library files *buck.lib* with the Buckingham parameters and *radii.lib* with the radii information of the element ions in a folder *libraries*. Such files can be found in the corresponding folder of the current repository. These contain the required information for the dataset [data](data).  
 
 Alternatively, you can open the jupyter notebook file [run.ipynb](run.ipynb).
 

@@ -1,0 +1,14 @@
+species
+O      core   -2.000000
+Sr     core    2.000000
+Ti     core    4.000000
+Na     core    1.000000
+Cl     core   -1.000000	
+
+buck
+Sr core O core  1952.39   0.33685 19.22 0.0 10.0
+Ti core O core  4590.7279 0.261    0.0  0.0 10.0
+O  core O core  1388.77   0.36262 175   0.0 10.0
+Na core Na core 3796.9    0.2603  124.90 0.0 10.0
+Cl core Cl core 1227.2    0.3214  124.90 0.0 10.0
+Na core Cl core 4117.9    0.3048  0.0   0.0 10.0

@@ -90,7 +90,7 @@ if __name__ == "__main__":
 	# avoid truncating too many terms
 	assert((-np.log(params['accuracy'])/params['N']**(1/6)) >= 1)
 
-	libfile = utils.DATAPATH+"Libraries/madelung.lib"
+	libfile = utils.DATAPATH+"libraries/madelung.lib"
 	Cpot = Coulomb(
 		chemical_symbols=params['chemical_symbols'],
 		N=params['N'],
@@ -103,8 +103,8 @@ if __name__ == "__main__":
 	coulomb_energies = Cpot.get_energies()
 	
 	dist_limit = 0
-	libfile = utils.DATAPATH+"Libraries/buck.lib"
-	libfile2 = utils.DATAPATH+"Libraries/radii.lib"
+	libfile = utils.DATAPATH+"libraries/buck.lib"
+	libfile2 = utils.DATAPATH+"libraries/radii.lib"
 	Bpot = Buckingham(
 		filename=libfile, 
 		chemical_symbols=params['chemical_symbols'], 
