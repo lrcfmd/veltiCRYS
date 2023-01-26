@@ -10,7 +10,7 @@ from ase.io import read as aread
 from ase.io import write as awrite
 from ase.visualize import view
 
-DATAPATH = "../../Data/"
+DATAPATH = "./"
 
 
 def print_template(dict):
