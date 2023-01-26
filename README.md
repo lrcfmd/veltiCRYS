@@ -216,4 +216,5 @@ where `step_func` and `direction_func` should be procedures. Line minimisation p
 
 #### Input
 
-The crystal structures whose energy is to be calculated need be in a *.cif* file or be defined with the [Atoms](https://wiki.fysik.dtu.dk/ase/ase/atoms.html?highlight=atoms#ase.Atoms) class of ase.
+The crystal structures whose energy is to be calculated need be in a *.cif* file or be defined with the [Atoms](https://wiki.fysik.dtu.dk/ase/ase/atoms.html?highlight=atoms#ase.Atoms) class of ase. Example structures can be found in the folder [data](data), which contains a set of 200 crystal structures 
+produced with a stable Strontium Titanate (\ch{Sr_3Ti_3O_9}) as a reference point. The length of each lattice vector is chosen from the values 4, 6, 8, 10, and 12 Angstroms and they form an orthorhombic unit cell containing 15 ions -- 3 strontium, 3 titanium and 9 oxygen ions. These are placed in a random manner on grid points defined by a 1 Angstrom  grid spacing. The placement is such that the negative ions are placed on grid points with even indices, and positive ions and are placed on grid points with odd indices.
