@@ -10,17 +10,36 @@ The energy and derivative calculations are written in [Cython](https://cython.or
 
 ## Dependencies
 
-In order for the modules to work you need to have some python packages:
+#### PIP
+The modules' functionality have several dependencies, thus it is advised to create a virtual environment. If you prefer pip then create a Python environment with a recent version of Python
+```console
+  python3.11 -m venv ~/envelti
 
-- numpy
-- pandas
-- ase
-- pickle
-- cmath
-- matplotlib
-- cython
+```
+activate the environment like so
+```console
+  source ~/envelti/bin/activate
 
-You also need have installed the jupyter notebook in case you want to use the calculation notebook. Please refer to the [requirements.txt](requirements.txt) file for a Python 3.10 environment description.
+```
+and install the required packages using the given [requirements](requirements.txt) text file
+```console
+   pip install -r requirements.txt
+
+```
+&nbsp;
+
+#### CONDA
+Otherwise, create a virtual environment with anaconda and a Python version 3.6.13+ like so
+```console
+  conda env create -f requirements.yml
+
+```
+using the corresponding [requirements](requirements.yml) file.
+
+
+to create a [Python virtual environment](https://docs.python.org/3/library/venv.html) with a recent version of Python (at least 3.7+). 
+
+[requirements.txt](requirements.txt) file for a Python 3.10 environment description.
 
 &nbsp;
 
