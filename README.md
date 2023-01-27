@@ -10,6 +10,7 @@ The energy and derivative calculations are written in [Cython](https://cython.or
 
 ## Dependencies
 
+#### PIP
 The modules' functionality have several dependencies, thus it is advised to create a virtual environment. If you prefer pip then create a Python environment with a recent version of Python
 ```console
   python3.11 -m venv ~/envelti
@@ -25,7 +26,9 @@ and install the required packages using the given [requirements](requirements.tx
    pip install -r requirements.txt
 
 ```
+&nbsp;
 
+#### CONDA
 Otherwise, create a virtual environment with anaconda and a Python version 3.6.13+ like so
 ```console
   conda env create -f requirements.yml
