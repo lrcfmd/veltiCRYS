@@ -4,7 +4,6 @@ import argparse
 import fileinput
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from cmath import pi
 from cmath import exp
