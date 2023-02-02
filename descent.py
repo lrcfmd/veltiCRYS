@@ -1,6 +1,5 @@
 import argparse, os
 import numpy as np
-import pandas as pd
 import pickle
 
 from ase.io import read as aread

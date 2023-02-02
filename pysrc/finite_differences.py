@@ -3,7 +3,6 @@ import shutil
 import argparse
 import fileinput
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from ase.visualize import view
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,

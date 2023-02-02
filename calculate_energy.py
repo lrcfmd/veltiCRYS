@@ -3,7 +3,6 @@ import shutil
 import argparse
 import fileinput
 import numpy as np
-import pandas as pd
 
 from cmath import pi
 from cmath import exp
