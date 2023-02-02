@@ -80,7 +80,7 @@ In order to install the package, please clone this project and run the following
 
 ```console
 
-  python setup.py build_ext --inpace
+  python setup.py build_ext --inplace
 
 ```
 &nbsp;
