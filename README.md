@@ -10,36 +10,67 @@ The energy and derivative calculations are written in [Cython](https://cython.or
 
 ## Dependencies
 
-#### PIP
-The modules' functionality have several dependencies, thus it is advised to create a virtual environment. If you prefer pip then create a Python environment with a recent version of Python
+The software's functionality have several dependencies, thus it is advised to create a virtual environment using either Python's venv or Anaconda.
+If you prefer venev and pip then use the instructions below:
+
+### PIP
+Create a Python environment as shown
 ```console
-  python3.11 -m venv ~/envelti
+  python -m venv ~/envelti
 
 ```
-activate the environment like so
+and activate the environment like so
 ```console
   source ~/envelti/bin/activate
 
 ```
-and install the required packages using the given [requirements](requirements.txt) text file
+then you have two options:
+
+#### 1. Manual 
+You can use pip and install the required packages with the command ```pip install``` (please use a recent version of pip e.g. 23.0). The essential packages for the software to work include:
+- numpy
+- ase
+- cython
+- jupyter notebook (optional, only if using the run.ipynb file)
+
+#### 2. Requirements.txt
+Otherwise, while the Python environment is activated, you can install the required packages using the given [requirements](requirements.txt) text file (please use a recent version of Python e.g. 3.11)
 ```console
    pip install -r requirements.txt
 
 ```
 &nbsp;
 
-#### CONDA
-Otherwise, create a virtual environment with anaconda and a Python version 3.6.13+ like so
+If you are familiar and are using conda, it is advisable that you create a virtual environment using this option. 
+
+### CONDA
+#### 1. Manual 
+You can create the environment as shown here 
+```console
+  conda create -n envelti
+
+```
+activate the environment as below
+```console
+  conda activate envelti
+
+```
+and install
+
+- numpy
+- ase
+- cython
+- jupyter notebook (optional, only if using the run.ipynb file)
+
+using the ```conda install``` command. 
+
+#### 2. Requirements.yml
+Otherwise you can create an environment using the [requirements](requirements.yml) file and a Python version 3.6.13+ like so
 ```console
   conda env create -f requirements.yml
 
 ```
-using the corresponding [requirements](requirements.yml) file.
-
-
-to create a [Python virtual environment](https://docs.python.org/3/library/venv.html) with a recent version of Python (at least 3.7+). 
-
-[requirements.txt](requirements.txt) file for a Python 3.10 environment description.
+with the corresponding [requirements](requirements.yml) file.
 
 &nbsp;
 
