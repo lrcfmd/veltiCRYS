@@ -26,14 +26,14 @@ and activate the environment like so
 ```
 then you have two options:
 
-#### Manual 
+#### 1. Manual 
 You can use pip and install the required packages with the command ```pip install``` (please use a recent version of pip e.g. 23.0). The essential packages for the software to work include:
 - numpy
 - ase
 - cython
 - jupyter notebook (optional, only if using the run.ipynb file)
 
-#### Requirements.txt
+#### 2. Requirements.txt
 Otherwise, while the Python environment is activated, you can install the required packages using the given [requirements](requirements.txt) text file (please use a recent version of Python e.g. 3.11)
 ```console
    pip install -r requirements.txt
@@ -44,7 +44,7 @@ Otherwise, while the Python environment is activated, you can install the requir
 If you are familiar and are using conda, it is advisable that you create a virtual environment using this option. 
 
 ### CONDA
-#### Manual 
+#### 1. Manual 
 You can create the environment as shown here 
 ```console
   conda create -n envelti
@@ -64,7 +64,7 @@ and install
 
 using the ```conda install``` command. 
 
-#### Requirements.yml
+#### 2. Requirements.yml
 Otherwise you can create an environment using the [requirements](requirements.yml) file and a Python version 3.6.13+ like so
 ```console
   conda env create -f requirements.yml
