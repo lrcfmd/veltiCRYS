@@ -10,18 +10,48 @@ The energy and derivative calculations are written in [Cython](https://cython.or
 
 ## Dependencies
 
+The software's functionality have several dependencies, thus it is advised to create a virtual environment using either Python's venv or Anaconda.
+If you prefer venev and pip then create a Python environment as below
+
 #### PIP
-The modules' functionality have several dependencies, thus it is advised to create a virtual environment. If you prefer pip then create a Python environment with a recent version of Python
 ```console
-  python3.11 -m venv ~/envelti
+  python -m venv ~/envelti
 
 ```
-activate the environment like so
+and activate the environment like so
 ```console
   source ~/envelti/bin/activate
 
 ```
-and install the required packages using the given [requirements](requirements.txt) text file
+If you are familiar and are using conda, it is advisable that you create a virtual environment using this option. You can create the environment as shown here or use the [requirements](requirements.yml) file (see below no.2 for instructions):
+
+#### CONDA
+```console
+  conda create -n envelti
+
+```
+and activate the environment as below
+```console
+  conda activate envelti
+
+```
+
+There are two options to consider for setting up the packages in the environment:
+
+### 1. Manual environment creation
+The essential packages for the software to work include:
+- numpy
+- ase
+- cython
+- jupyter notebook (optional)
+
+You can use pip and install the required packages with the command ```pip install``` (please use a recent version of pip e.g. 23.0). Otherwise you can use the ```conda install``` command in the same way. The jupyter notebook is needed only in case of using the run.ipynb file.
+
+### 2. Requirements file
+Two requirements files are provided in order to prepare an environment either using Python's venv or conda.
+
+#### PIP
+While the Python environment is activated, you can install the required packages using the given [requirements](requirements.txt) text file (please use a recent version of Python e.g. 3.11)
 ```console
    pip install -r requirements.txt
 
@@ -35,11 +65,6 @@ Otherwise, create a virtual environment with anaconda and a Python version 3.6.1
 
 ```
 using the corresponding [requirements](requirements.yml) file.
-
-
-to create a [Python virtual environment](https://docs.python.org/3/library/venv.html) with a recent version of Python (at least 3.7+). 
-
-[requirements.txt](requirements.txt) file for a Python 3.10 environment description.
 
 &nbsp;
 
