@@ -2,7 +2,7 @@
 veltiCRYS
 ===============
 
-velti (from βελτιστοποίηση meaning optimization in Greek) for CRYStals is a collection of modules with functions useful for geometry optimization of ionic structures. It involves energy calculation with the Buckingham-Coulomb energy function potential and analytic first derivatives along with some local optimization methods. The input should be a collection of parameters that represents a unit cell with N ions, including a Nx3 (each row corresponding to a 3-dimensional ion position) and a 3x3 numpy array (each row corresponding to one 3-dimensional lattice vector).
+velti (from βελτιστοποίηση meaning optimization in Greek) for CRYStals is a collection of modules with functions useful for geometry optimization of ionic structures. It involves energy calculation with the Buckingham-Coulomb energy function potential and analytic first derivatives along with some local optimization methods. Documentation of the background theory can be found in our paper [First Order Methods for Geometric Optimization of Crystal Structures](https://arxiv.org/abs/2301.12941). The input should be a collection of parameters that represents a unit cell with N ions, including a Nx3 (each row corresponding to a 3-dimensional ion position) and a 3x3 numpy array (each row corresponding to one 3-dimensional lattice vector).
 
 The energy and derivative calculations are written in [Cython](https://cython.org/) and optimization step methods are written in [Python](https://www.python.org/about/).
 
@@ -83,6 +83,8 @@ In order to install the package, please clone this project and run the following
   python setup.py build_ext --inplace
 
 ```
+Any files and folders produced with this operation can be removed by running the bash script [clean.sh](clean.sh) from the root folder of the project.
+
 &nbsp;
 
 ## Execution
