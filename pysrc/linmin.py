@@ -57,17 +57,10 @@ def calculate_temp_energy(potentials, init_energy, pos, vects,
 	dict[str, _]
 	
 	"""
-	# step = [.0, .0]
+
 	pos_temp = pos.copy()
 	vects_temp = vects.copy()
 	strains_temp = strains.copy()
-
-	# if not isinstance(step_temp, list):
-	# 	step = [step_temp, step_temp]
-	# elif len(step_temp)==1:
-	# 	step = [step_temp[0], step_temp[0]]
-	# else:
-	# 	step = step_temp 
 
 	words = "UP "+str(update)+"\n"
 	print(words.center(COLUMNS," "))

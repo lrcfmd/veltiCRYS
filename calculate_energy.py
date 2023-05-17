@@ -35,16 +35,6 @@ charge_dict = {
 	'Zn':  2.
 }
 
-atom_types = {
-	'O':  1,
-	'Sr': 2,
-	'Ti': 3,
-	# 'Na': 4,
-	# 'Cl': 5,
-	# 'S' : 6,
-	# 'Zn': 7
-}
-
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		description='Define input')
@@ -79,10 +69,7 @@ if __name__ == "__main__":
 	
 	args = parser.parse_args()
 
-	nrg_list = []
-	# for d in np.arange(-0.01, 0.01, 0.001):
 	(folder, structure, atoms) = utils.get_input(filename=args.i)
-
 	params = utils.initialise(atoms)
 
 	# avoid truncating too many terms
@@ -140,11 +127,6 @@ if __name__ == "__main__":
 	initial_energy += buckingham_energies['All']
 	potentials['Buckingham'] = Bpot
 
-	# nrg_list += [initial_energy]
-	# plt.plot(np.arange(-0.01, 0.01, 0.001), nrg_list)
-	# plt.show()
-
-
 	outdir = args.o if args.o else "output/"
 
 	if not os.path.isdir(outdir):
@@ -154,10 +136,6 @@ if __name__ == "__main__":
 	if args.m:
 		if "CG" in args.m:
 			direction = CG
-		if "RMS" in args.m:
-			direction = RMSprop
-		if "Adam" in args.m:
-			direction = Adam
 	
 	prettyprint({'Chemical Symbols':atoms.get_chemical_symbols(), 'Positions':atoms.positions, \
 		'Cell':atoms.get_cell(), 'Electrostatic energy':coulomb_energies, 'Interatomic energy':Bpot.get_energies(), \
@@ -165,8 +143,8 @@ if __name__ == "__main__":
 
 	iteration = {'Energy': initial_energy}
 	
-	import math
 	from pysrc.linmin import *
+	from pysrc.utility import utility
 
 	if args.relax:
 
@@ -188,3 +166,5 @@ if __name__ == "__main__":
 			)
 
 	print("Time: "+str(time.time() - start_time)+"\n")
+	folder = input("Provide directory path of structure folders: ")
+	utility(folder, ['GD', 'CG'], [0, 0.5, 1])
