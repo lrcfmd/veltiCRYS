@@ -45,3 +45,7 @@ The file currently includes constant step size application (`steady_step` method
 * [utils.py](utils.py)
 
 This module consists of simple methods for formatting appearance of outputs and input wrappers.
+
+* [utility.py](utility.py)
+
+This script provides the procedure that calculates the utility of a method according to the utility function described in our paper [First Order Methods for Geometric Optimization of Crystal Structures](https://arxiv.org/abs/2301.12941). The procedure receives a path to a directory that contains multiple experiments' folders, the methods to be evaluated and a list of lambda constants. Each folder of the directory should correspond to one structure and it should contain pickle files with the structure's details before relaxation and the results from the first and last iterations. If there is no experiment relaxed with a given method, an error will occur. 
