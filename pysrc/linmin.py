@@ -163,11 +163,10 @@ def lattice_update(potentials, strains, step_temp, direction, pos_temp, vects):
 	
 	"""
 	N = len(pos_temp)
-	scale = np.array([[1,.5,.5], [.5,1,.5], [.5,.5,1]])
 
 	# Using strains and stress
 	strains_temp = strains + step_temp*direction[N:]
-	delta_strains_temp = (strains_temp-1)*scale+np.identity(3)
+	delta_strains_temp = (strains_temp-1)+np.identity(3)
 	vects_temp = vects @ delta_strains_temp.T
 	pos_temp = pos_temp @ delta_strains_temp.T
 
