@@ -1,6 +1,8 @@
 import os, glob
 import statistics
 import pickle
+import argparse
+import matplotlib.pyplot as plt
 
 captime = 50000
 
@@ -27,9 +29,13 @@ def utility(folder, methods, lads):
 	
 
 	"""
-	rates = {m: 0 for m in methods} # dict with method as key
+	if not methods:
+		raise ValueError('No method defined.')
+
+	rates = {} # dict with method as key
 	iters = [] # keep a list with iteration number and method per structure
 	LEN = 0
+	step_methods = []
 
 	# Find successful experiments per method
 	for struct in os.listdir(folder): # per structure folder
@@ -55,7 +61,11 @@ def utility(folder, methods, lads):
 			# get info from first iteration
 			with open(pkl_list[1], 'rb') as file:
 				output = pickle.load(file)
-				method = output['Method']
+				method = output['Method']+'_'+folder.split('_')[-1].split('/')[0]
+				if method not in rates.keys():
+					rates[method] = 0
+				if method not in step_methods:
+					step_methods.append(method)
 		else:
 			print("No method found.")
 
@@ -79,11 +89,11 @@ def utility(folder, methods, lads):
 		LEN += 1
 
 	# calculate utility per method
-	utilities = {m: [] for m in methods}
+	utilities = {m: [] for m in step_methods}
 
 	for lad in lads: # Find all experiment scores and get mean
 
-		scores = {m: [] for m in methods}
+		scores = {m: [] for m in step_methods}
 		# Use successful experiments
 		for pair in iters: # per structure folder
 
@@ -101,5 +111,72 @@ def utility(folder, methods, lads):
 			utilities[method].append(u)
 
 	return utilities
+
+
+def plot_utilities(lads, utilities, path):
+	fig, ax = plt.subplots(figsize=(10,10))
+	cg_colors = [[205/255,133/255,63/255],
+		[255/255,99/255,71/255],
+		[238/255,92/255,66/255], 
+		[205/255,79/255,57/255], 
+		[139/255,54/255,38/255]]
+	gd_colors = [[152/255,251/255,152/255],
+		[154/255,255/255,154/255],	 
+		[144/255,238/255,144/255],	 
+		[124/255,205/255,124/255],	 
+		[84/255,139/255,84/255]]
+	linestyles = ['-', ':', '--', '-.', '-']
+
+	idg, idc = 0, 0
+	for method in utilities.keys():
+		if "GD" in method:
+			ax.plot(lads, list(utilities[method]), 
+				color=gd_colors[idg%5], label=method,
+				linestyle=linestyles[idg%5], linewidth=5)
+			idg += 1
+		else:
+			ax.plot(lads, list(utilities[m]), 
+				color=cg_colors[idc%5], label=method, 
+				linestyle=linestyles[idc%5], linewidth=5)
+			idc += 1
+
+	ax.grid(zorder=0, linestyle = '--')
+	ax.legend(prop={'size': 23})
+	ax.set_title("Utility Function", fontsize=33)
+
+	ax.set_ylabel("Score", fontsize=23)
+	ax.set_xlabel("Lambda", fontsize=23)
+	ax.tick_params(axis='both', which='major', labelsize=23)
+	plt.tight_layout()
+	plt.show()
+
+	fig.savefig(path+"utility.pdf")
+
+	return utilities
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(
+		description='Define input')
+	parser.add_argument(
+		'-f', metavar='--folders', type=str,
+		nargs='+', default=[],
+		help='Folder with structures.')
+	parser.add_argument(
+		'-m', metavar='--method', type=str,
+		nargs='+', default=[],
+		help='Method to evaluate utility on')
+	parser.add_argument(
+		'-o', metavar='--output', type=str,
+		default='./',
+		help='Folder to place plot')
+	
+	args = parser.parse_args()
+	utilities = {}
+	lads = [lad/1000 for lad in range(0, 1000)]
+
+	for folder in args.f:
+		utilities.update(utility(folder, args.m, lads))
+
+	plot_utilities(lads, utilities, args.o)
 
 
