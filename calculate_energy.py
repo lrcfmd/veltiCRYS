@@ -166,5 +166,3 @@ if __name__ == "__main__":
 			)
 
 	print("Time: "+str(time.time() - start_time)+"\n")
-	folder = input("Provide directory path of structure folders: ")
-	utility(folder, ['GD', 'CG'], [0, 0.5, 1])
