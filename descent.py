@@ -145,7 +145,7 @@ class Descent:
 		# Calculate new energy
 		res_dict, evals = step_func(
 			atoms=atoms, 
-			strains=last_iter['Strains'], 
+			strains=np.ones((3,3)), 
 			grad=grad_norm, 
 			gnorm=last_iter['Gnorm'], 
 			direction=last_iter['Direction'], 
@@ -163,18 +163,11 @@ class Descent:
 		atoms.positions = res_dict['Positions']
 		self.iters += 1
 
-		# Change method if stuck
+		# Change method every some iterations
 		if 'reset' in kwargs:
 			C = 3*N+9
-			if kwargs['reset'] & (
-				((not res_dict['Step']) & (res_dict['Energy']==self.emin)) \
-				or (self.iters % C == 0)
-				):
+			if kwargs['reset'] & (self.iters % C == 0):
 				direction_func = GD
-
-		# Reset strains every _ iterations
-		if (self.iters % (3*N+9) == 0):
-			res_dict['Strains'] = np.ones((3,3))
 
 		# Assign new vectors
 		pos = np.array(atoms.positions)
@@ -231,9 +224,9 @@ class Descent:
 
 		return iteration
 
-	def repeat(self, init_energy, atoms, potentials, outdir, outfile,
+	def repeat(self, init_energy, atoms, potentials, outdir, outfile, 
 		step_func=steady_step, direction_func=GD, 
-		strains=np.ones((3,3)), usr_flag=False, max_step=1, out=1, **kwargs):
+		usr_flag=False, max_step=1, out=1, **kwargs):
 		"""The function that performs the optimisation. It calls repetitively 
 		iter_step for each updating step.
 
@@ -256,8 +249,6 @@ class Descent:
 		direction_func : function
 			The function to be used for the calculation of
 			the direction vector (optimiser).
-		strains : 3x3 array (double)
-			The lattice strains of the initial configuration.
 		usr_flag : bool
 			Flag that is used to stop after each iteration
 			and wait for user input, if true.
@@ -277,6 +268,7 @@ class Descent:
 		pos = np.array(atoms.positions)
 		vects = np.array(atoms.get_cell())
 		N = len(atoms.positions)
+		strains = np.ones((3,3))
 		
 		count_non = 0
 		total_evals = 1
@@ -368,7 +360,7 @@ class Descent:
 				last_iter=last_iteration, 
 				step_func=step_func, 
 				direction_func=direction_func, 
-				max_step=last_iteration['Step'] if last_iteration['Step']>0 else max_step,
+				max_step=last_iteration['Step'] if last_iteration['Step'] else max_step,
 				update=update,
 				**kwargs)
 
