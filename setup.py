@@ -39,9 +39,9 @@ def makeExtension(extName):
         )
 
 # get the list of extensions
-packNames = ["cysrc"]
+packNames = ["potentials"]
 packNo = 0
-extNames = scandir("cysrc")
+extNames = scandir("potentials")
 
 # and build up the set of Extension objects
 extensions = cythonize(
@@ -50,8 +50,8 @@ extensions = cythonize(
 
 
 setup(
-  name="cysrc",
-  packages=["cysrc"],
+  name="potentials",
+  packages=["potentials"],
   ext_modules=extensions,
   cmdclass = {'build_ext': build_ext},
 )

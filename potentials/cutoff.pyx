@@ -1,4 +1,4 @@
-cimport cysrc.operations as ops
+cimport potentials.operations as ops
 import numpy as np
 
 from ase import *

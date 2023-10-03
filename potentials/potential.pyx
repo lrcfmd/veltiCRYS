@@ -18,27 +18,24 @@ from libc.stdio cimport printf
 from libc.stdlib cimport malloc,free,realloc
 import cython, shutil
 
-from cysrc.cutoff cimport inflated_cell_truncation as get_shifts
+from potentials.cutoff cimport inflated_cell_truncation as get_shifts
 
-from cysrc.operations cimport det as det3_3
-from cysrc.operations cimport get_real_distance 
-from cysrc.operations cimport get_recip_distance
-from cysrc.operations cimport get_distance_vector
-from cysrc.operations cimport norm_m,norm
-from cysrc.operations import get_all_distances, get_min_dist
+from potentials.operations cimport det as det3_3
+from potentials.operations cimport get_real_distance 
+from potentials.operations cimport get_recip_distance
+from potentials.operations cimport get_distance_vector
+from potentials.operations cimport norm_m,norm
+from potentials.operations import get_all_distances, get_min_dist
 
 from cpython.array cimport array, clone
 
-cpdef double get_volume(double[:,:] vects):
-	return abs(det3_3(vects))
 
-
-cdef class Potential:
+cdef class EwaldPotential:
 	"""Generic class for defining potentials."""
 
 	@cython.boundscheck(False)
 	@cython.wraparound(False)
-	cdef double[:,:] get_reciprocal_vects(self, double[:,:] vects, double volume):
+	cdef double[:,:] get_reciprocal_vects(self, double[:,:] vects):
 		"""Calculate reciprocal vectors.
 		
 		Parameters
@@ -55,6 +52,7 @@ cdef class Potential:
 
 		cdef size_t i,a,b
 		cdef double[:,:] rvects_view
+		cdef double volume = abs(det3_3(vects))
 
 		rvects = cvarray(shape=(3,3),itemsize=sizeof(double),format="d")
 		for i in range(3):
@@ -134,6 +132,10 @@ cdef class Potential:
 
 			cutoff_view[i] = int(ceil(init_cutoff/(volume/normal_norm)))
 		return cutoff_view
+
+
+cpdef double get_volume(double[:,:] vects):
+	return abs(det3_3(vects))
 
 
 cpdef double get_gnorm(double[:,:] grad, int N): 

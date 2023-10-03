@@ -2,12 +2,12 @@ import argparse, sys
 import numpy as np
 from math import log, exp
 
-from cysrc.potential import *
-from cysrc.buckingham import *
-from cysrc.coulomb import *
+from potentials.potential import *
+from potentials.buckingham import *
+from potentials.coulomb import *
 
-from cysrc.cutoff import check_lattice
-from cysrc.operations import get_all_distances, get_min_dist
+from potentials.cutoff import check_lattice
+from potentials.operations import get_all_distances, get_min_dist
 
 from ase import Atoms
 from ase.io import read as aread
@@ -62,9 +62,6 @@ def calculate_temp_energy(potentials, init_energy, pos, vects,
 	vects_temp = vects.copy()
 	strains_temp = strains.copy()
 
-	words = "UP "+str(update)+"\n"
-	print(words.center(COLUMNS," "))
-
 	if 'ions' in update:
 		# Update ion positions
 		pos_temp = position_update(
@@ -78,15 +75,9 @@ def calculate_temp_energy(potentials, init_energy, pos, vects,
 	# Calculate temporary energy
 	temp_energy, temp_val = 0, 0
 	for name in potentials:
-		if hasattr(potentials[name], 'calc'):
-			temp_val = potentials[name].calc(
+		if hasattr(potentials[name], 'energy'):
+			temp_val = potentials[name].energy(
 				pos_array=pos_temp, vects_array=vects_temp, N_=N)
-			
-			# If Buckingham energy is exactly 0
-			# catastrophe check might have failed
-			if (temp_val==0) & (name=='Buckingham'):
-				return {}
-			
 			temp_energy += temp_val
 
 	print("Initial energy: ",init_energy,

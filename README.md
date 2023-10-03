@@ -90,10 +90,10 @@ Any files and folders produced with this operation can be removed by running the
 ## Execution
 
 
-In order to perform a geometry optimization calculation, run the Python script in file [calculate_energy.py](calculate_energy.py) with
+In order to perform a geometry optimization calculation, run the Python script in file [run.py](run.py) with
 
 ```console
-  python calculate_energy.py [-h] [-i --input] [-r] [-u] [-out --out_frequency]
+  python run.py [-h] [-i --input] [-r] [-u] [-out --out_frequency]
                              [-o --output] [-s --max_step]
                              [-m --relaxation_method]
 
@@ -113,7 +113,7 @@ In order to perform a geometry optimization calculation, run the Python script i
 
 ```
 
-You will need to add the necessary elements with their charge in **charge_dict** of file *calculate_energy* and adjust the corresponding input paths in **DATAPATH** of *utils.py*. **DATAPATH** needs to contain the library files *buck.lib* with the Buckingham parameters and *radii.lib* with the radii information of the element ions in a folder *libraries*. Such files can be found in the corresponding folder of the current repository. These contain the required information for the dataset [data](data).
+You will need to add the necessary elements with their charge in **charge_dict** of file *run* and adjust the corresponding input paths in **DATAPATH** of *utils.py*. **DATAPATH** needs to contain the library files *buck.lib* with the Buckingham parameters and *radii.lib* with the radii information of the element ions in a folder *libraries*. Such files can be found in the corresponding folder of the current repository. These contain the required information for the dataset [data](data).
 
 Alternatively, you can open the jupyter notebook file [run.ipynb](run.ipynb).
 

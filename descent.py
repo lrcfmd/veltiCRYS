@@ -5,19 +5,29 @@ import pickle
 from ase.io import read as aread
 from ase.cell import Cell
 from ase.geometry import wrap_positions, get_distances
-from ase.visualize import view
 from ase.io import write
 from ase.geometry import cell_to_cellpar, cellpar_to_cell
 
-from cysrc.potential import *
-from cysrc.buckingham import *
-from cysrc.coulomb import *
+from potentials.potential import *
+from potentials.buckingham.buckingham import *
+from potentials.coulomb.coulomb import *
 
-from pysrc.utils import prettyprint
-from pysrc.finite_differences import finite_diff_grad
-from pysrc.direction import *
-from pysrc.linmin import *
+from direction import *
+from linmin import *
 
+import shutil
+COLUMNS = shutil.get_terminal_size().columns
+def prettyprint(dict_):
+	import pprint
+	np.set_printoptions(suppress=True)
+	words = ""
+	for key, value in dict_.items():
+		if key=="Total energy":
+			words += key+" "+str(value)+" "
+		else:
+			print("\n", key)
+			print(value)
+	print(words.center(COLUMNS,"-"))
 
 class Descent:
 	"""Class with procedures that perform optimisation steps.
@@ -76,7 +86,7 @@ class Descent:
 		bool
 
 		"""
-		de = abs(last_iteration['Energy']-iteration['Energy'])
+		de = last_iteration['Energy']-iteration['Energy']
 
 		if iteration['Gnorm']<self.gtol:
 			print("Iterations: {} Final Gnorm: {} Tolerance: {}".format(
@@ -145,7 +155,7 @@ class Descent:
 		# Calculate new energy
 		res_dict, evals = step_func(
 			atoms=atoms, 
-			strains=np.ones((3,3)), 
+			strains=last_iter['Strains'], 
 			grad=grad_norm, 
 			gnorm=last_iter['Gnorm'], 
 			direction=last_iter['Direction'], 
@@ -153,6 +163,7 @@ class Descent:
 			init_energy=last_iter['Energy'],
 			iteration=self.iters, 
 			max_step=max_step,
+			min_step=kwargs['min_step'],
 			step_tol=self.step_tol,
 			update=update, 
 			schedule=100,
@@ -161,13 +172,26 @@ class Descent:
 		# Calculate new point on energy surface
 		atoms.set_cell(Cell.new(res_dict['Cell']))
 		atoms.positions = res_dict['Positions']
+
+		# Set cutoff parameters
+		for name in potentials:
+			if hasattr(potentials[name], 'set_cutoff_parameters'):
+				potentials[name].set_cutoff_parameters(res_dict['Cell'],N)	
+
 		self.iters += 1
 
-		# Change method every some iterations
+		# Change method if stuck
 		if 'reset' in kwargs:
 			C = 3*N+9
-			if kwargs['reset'] & (self.iters % C == 0):
+			if kwargs['reset'] & (
+				((not res_dict['Step']) & (res_dict['Energy']==self.emin)) \
+				or (self.iters % C == 0)
+				):
 				direction_func = GD
+
+		# Reset strains every _ iterations
+		if (self.iters % (3*N+9) == 0):
+			res_dict['Strains'] = np.ones((3,3))
 
 		# Assign new vectors
 		pos = np.array(atoms.positions)
@@ -183,7 +207,7 @@ class Descent:
 		if 'debug' in kwargs:
 			if kwargs['debug']:
 				finite_diff_grad(
-					atoms, grad, N, res_dict['Strains'], 0.0001, potentials)
+					atoms, grad, N, res_dict['Strains'], 0.1, potentials)
 		
 		# Gradient norm
 		gnorm = get_gnorm(grad,N)
@@ -224,9 +248,9 @@ class Descent:
 
 		return iteration
 
-	def repeat(self, init_energy, atoms, potentials, outdir, outfile, 
+	def repeat(self, init_energy, atoms, potentials, outdir, outfile,
 		step_func=steady_step, direction_func=GD, 
-		usr_flag=False, max_step=1, out=1, **kwargs):
+		strains=np.ones((3,3)), usr_flag=False, max_step=1, out=1, **kwargs):
 		"""The function that performs the optimisation. It calls repetitively 
 		iter_step for each updating step.
 
@@ -249,6 +273,8 @@ class Descent:
 		direction_func : function
 			The function to be used for the calculation of
 			the direction vector (optimiser).
+		strains : 3x3 array (double)
+			The lattice strains of the initial configuration.
 		usr_flag : bool
 			Flag that is used to stop after each iteration
 			and wait for user input, if true.
@@ -268,7 +294,6 @@ class Descent:
 		pos = np.array(atoms.positions)
 		vects = np.array(atoms.get_cell())
 		N = len(atoms.positions)
-		strains = np.ones((3,3))
 		
 		count_non = 0
 		total_evals = 1
@@ -297,7 +322,7 @@ class Descent:
 		if 'debug' in kwargs:
 			if kwargs['debug']:
 				finite_diff_grad(
-					atoms, grad, N, strains, 0.0001, potentials)
+					atoms, grad, N, strains, 0.01, potentials)
 
 		# Gradient norm
 		gnorm = get_gnorm(grad,N)
@@ -360,7 +385,7 @@ class Descent:
 				last_iter=last_iteration, 
 				step_func=step_func, 
 				direction_func=direction_func, 
-				max_step=last_iteration['Step'] if last_iteration['Step'] else max_step,
+				max_step=last_iteration['Step'] if last_iteration['Step']>0 else max_step,
 				update=update,
 				**kwargs)
 
