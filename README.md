@@ -194,9 +194,9 @@ before each energy calculation, if the unit cell undergoes any changes. The cuto
 
 ```python
   print_parameters(self)
-  calc(self, atoms, pos_array, vects_array, N)
+  energy(self, atoms, pos_array, vects_array, N)
   get_energies(self)
-  calc_drv(self, atoms, pos_array, vects_array, N)
+  gradient(self, atoms, pos_array, vects_array, N)
 
 ```
 
@@ -210,7 +210,7 @@ Arguments of these functions include:
 | atoms            | Object of ase Atoms class (optional)         |
 
 
-Both energy (`calc`) and derivatives (`calc_drv`) can be calculated  either by defining parameters `N, pos_array, vects_array` or `atoms`.
+Both energy (`energy`) and derivatives (`gradient`) can be calculated  either by defining parameters `N, pos_array, vects_array` or `atoms`.
 
 &nbsp;
 
