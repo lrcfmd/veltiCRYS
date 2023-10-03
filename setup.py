@@ -41,7 +41,7 @@ def makeExtension(extName):
 # get the list of extensions
 packNames = ["potentials"]
 packNo = 0
-extNames = scandir("potentials")
+extNames = scandir("relax/potentials")
 
 # and build up the set of Extension objects
 extensions = cythonize(

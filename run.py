@@ -15,10 +15,10 @@ from ase.io import read as aread
 from ase.io import write as awrite
 from ase.visualize.plot import plot_atoms
 
-from potentials.operations import get_min_dist
-from potentials.buckingham.buckingham import *
-from potentials.coulomb.coulomb import *
-from direction import *
+from relax.potentials.operations import get_min_dist
+from relax.potentials.buckingham.buckingham import *
+from relax.potentials.coulomb.coulomb import *
+from relax.direction import *
 
 import timeit
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
 
 	########################### RELAXATION #############################
-	from descent import *
+	from relax.descent import *
 	import time
 
 	potentials = {}
@@ -164,7 +164,7 @@ if __name__ == "__main__":
 
 	iteration = {'Energy': initial_energy}
 	
-	from linmin import *
+	from relax.linmin import *
 	from utility import utility
 
 	if args.relax:
