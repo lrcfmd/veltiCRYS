@@ -155,7 +155,7 @@ class Descent:
 		# Calculate new energy
 		res_dict, evals = step_func(
 			atoms=atoms, 
-			strains=last_iter['Strains'], 
+			strains=np.ones((3,3)), 
 			grad=grad_norm, 
 			gnorm=last_iter['Gnorm'], 
 			direction=last_iter['Direction'], 
@@ -179,19 +179,12 @@ class Descent:
 				potentials[name].set_cutoff_parameters(res_dict['Cell'],N)	
 
 		self.iters += 1
-
-		# Change method if stuck
+		
+		# Change method every some iterations
 		if 'reset' in kwargs:
 			C = 3*N+9
-			if kwargs['reset'] & (
-				((not res_dict['Step']) & (res_dict['Energy']==self.emin)) \
-				or (self.iters % C == 0)
-				):
+			if kwargs['reset'] & (self.iters % C == 0):
 				direction_func = GD
-
-		# Reset strains every _ iterations
-		if (self.iters % (3*N+9) == 0):
-			res_dict['Strains'] = np.ones((3,3))
 
 		# Assign new vectors
 		pos = np.array(atoms.positions)
@@ -200,7 +193,7 @@ class Descent:
 		# Gradient of this point on PES
 		grad = np.zeros((N+3,3))
 		for name in potentials:
-			grad += np.array(potentials[name].calc_drv(
+			grad += np.array(potentials[name].gradient(
 			pos_array=pos, vects_array=vects, N_=N))
 
 		# Print numerical derivatives
@@ -239,18 +232,13 @@ class Descent:
 		'Step':res_dict['Step'], 'Gnorm':gnorm, 'Energy':res_dict['Energy'], 
 		'Evaluations':evals, 'Catastrophe': res_dict['Catastrophe']}
 
-		# Limit for Buckingham catastrophe
-		if 'Buckingham' in potentials:
-			iteration['Limit'] = potentials['Buckingham'].get_limit()
-
 		# Add name of used method to list
 		self.methods += [direction_func.__name__]
 
 		return iteration
 
-	def repeat(self, init_energy, atoms, potentials, outdir, outfile,
-		step_func=steady_step, direction_func=GD, 
-		strains=np.ones((3,3)), usr_flag=False, max_step=1, out=1, **kwargs):
+	def repeat(self, init_energy, atoms, potentials, outdir, outfile, 
+		step_func=steady_step, direction_func=GD, usr_flag=False, max_step=1, out=1, **kwargs):
 		"""The function that performs the optimisation. It calls repetitively 
 		iter_step for each updating step.
 
@@ -273,8 +261,6 @@ class Descent:
 		direction_func : function
 			The function to be used for the calculation of
 			the direction vector (optimiser).
-		strains : 3x3 array (double)
-			The lattice strains of the initial configuration.
 		usr_flag : bool
 			Flag that is used to stop after each iteration
 			and wait for user input, if true.
@@ -294,7 +280,8 @@ class Descent:
 		pos = np.array(atoms.positions)
 		vects = np.array(atoms.get_cell())
 		N = len(atoms.positions)
-		
+		strains = np.ones((3,3))
+
 		count_non = 0
 		total_evals = 1
 		final_iteration = None
@@ -314,15 +301,15 @@ class Descent:
 		# Gradient for this point on PES
 		grad = np.zeros((N+3,3))
 		for name in potentials:
-			if hasattr(potentials[name], 'calc_drv'):
-				grad += np.array(potentials[name].calc_drv(
+			if hasattr(potentials[name], 'gradient'):
+				grad += np.array(potentials[name].gradient(
 				pos_array=pos, vects_array=vects, N_=N))
 
 		# Print numerical derivatives
 		if 'debug' in kwargs:
 			if kwargs['debug']:
 				finite_diff_grad(
-					atoms, grad, N, strains, 0.01, potentials)
+					atoms, grad, N, strains, 0.00001, potentials)
 
 		# Gradient norm
 		gnorm = get_gnorm(grad,N)
@@ -385,7 +372,7 @@ class Descent:
 				last_iter=last_iteration, 
 				step_func=step_func, 
 				direction_func=direction_func, 
-				max_step=last_iteration['Step'] if last_iteration['Step']>0 else max_step,
+				max_step=last_iteration['Step'] if last_iteration['Step'] else max_step,
 				update=update,
 				**kwargs)
 

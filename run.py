@@ -51,9 +51,11 @@ if __name__ == "__main__":
         '-o', metavar='--output', type=str,
         help='Output directory')
 	parser.add_argument(
-		'-s', metavar='--max_step', type=float,
-		# nargs='*',
+		'-su', metavar='--max_step', type=float,
 		help='Use upper bound step size')
+	parser.add_argument(
+		'-sl', metavar='--min_step', type=float,
+		help='Use lower bound step size')
 	parser.add_argument(
         '-m', metavar='--relaxation_method', type=str,
         help='Choose updating method')
@@ -179,7 +181,8 @@ if __name__ == "__main__":
 			direction_func=direction,
 			step_func=steady_step,
 			usr_flag=args.user,
-			max_step=args.s if args.s else 0.01,
+			max_step=args.su if args.su else 0.01,
+			min_step=args.sl if args.sl else 0.00001,
 			out=args.out if args.out else 1,
 			reset=args.reset if args.reset else False,
 			debug=args.debug if args.debug else False,
