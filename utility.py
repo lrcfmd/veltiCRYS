@@ -4,7 +4,7 @@ import pickle
 import argparse
 import matplotlib.pyplot as plt
 
-captime = 50000
+captime = 70000
 
 def iterno(x):
 	return(int(x.split('_')[-1].split('.')[0]))
@@ -77,7 +77,7 @@ def utility(folder, methods, lads):
 			# check if the run was successful
 			# if yes, count in method successes and keep iteration number
 			try:
-				if output['Optimised'] is not None:
+				if output['Optimised']:
 					rates[method] += 1
 					iteration = int(pkl_list[-1].split('_')[-1].split('.')[0])
 					iters.append((method, iteration))
@@ -106,7 +106,10 @@ def utility(folder, methods, lads):
 			scores[method].append(score)
 
 		for method in scores.keys():
-			u = statistics.mean(scores[method])
+			if scores[method]:
+				u = statistics.mean(scores[method])
+			else:
+				u = 0
 			print("Method:",method,"Lambda:",lad,"Utility:",u)
 			utilities[method].append(u)
 
