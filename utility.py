@@ -77,7 +77,7 @@ def utility(folder, methods, lads):
 			# check if the run was successful
 			# if yes, count in method successes and keep iteration number
 			try:
-				if output['Optimised']:
+				if output['Optimised'] is not None:
 					rates[method] += 1
 					iteration = int(pkl_list[-1].split('_')[-1].split('.')[0])
 					iters.append((method, iteration))
