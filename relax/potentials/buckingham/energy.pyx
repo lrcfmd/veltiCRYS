@@ -6,7 +6,7 @@ import csv
 import sys
 
 from cython.view cimport array as cvarray
-from libc.stdlib cimport malloc, free
+from libc.stdlib cimport calloc, free
 from cython.parallel import prange,parallel
 
 from relax.potentials.potential cimport EwaldPotential
@@ -17,7 +17,7 @@ from libc.math cimport *
 from libc.float cimport *
 from libc.limits cimport *
 from libc.stdio cimport printf
-from libc.stdlib cimport malloc,free,realloc
+from libc.stdlib cimport calloc,free,realloc
 import cython, shutil
 
 from relax.potentials.cutoff cimport inflated_cell_truncation as get_shifts
@@ -36,7 +36,10 @@ from cpython.array cimport array, clone
 '''									BUCKINGHAM											'''
 '''																						'''
 
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double ewald_self(buck, double[:,:] vects, cnp.ndarray chemical_symbols, 
 	double alpha, int N) except? 0:                             
 	"""Calculate self interaction term.
@@ -72,6 +75,10 @@ cdef double ewald_self(buck, double[:,:] vects, cnp.ndarray chemical_symbols,
 	return eself/2
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double ewald_recip(buck, double[:,:] pos, double[:,:] vects, double[:,:] rvects, 
 	cnp.ndarray chemical_symbols, double alpha, double recip_cut_off, int N) except? 0:
 	"""Calculate long range energy in reciprocal space.
@@ -107,13 +114,13 @@ cdef double ewald_recip(buck, double[:,:] pos, double[:,:] vects, double[:,:] rv
 	else:
 		shifts_no = len(shifts)
 
-	erecip = 0
+	# set an array as zero shift
 	nil_array = array("d",[0,0,0])
 
 	for ioni in range(N):
 
 		# Allocate thread-local memory for distance vector
-		rij = <double *> malloc(sizeof(double) * 3)
+		rij = <double *> calloc(3, sizeof(double))
 
 		for ionj in range(N): 
 
@@ -146,11 +153,14 @@ cdef double ewald_recip(buck, double[:,:] pos, double[:,:] vects, double[:,:] rv
 
 		# Deallocate distance vector
 		free(rij)
-		rij = NULL
 
 	return erecip/2
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double ewald_real(buck, double[:,:] pos, double[:,:] vects, 
 	cnp.ndarray chemical_symbols, double alpha, double real_cut_off, int N) except? 0:
 	"""Calculate short range energy.
@@ -174,8 +184,8 @@ cdef double ewald_real(buck, double[:,:] pos, double[:,:] vects,
 	cdef double[:] nil_array
 	cdef double[:,:] shifts
 
+	# set an array as zero shift
 	nil_array = array("d",[0,0,0])
-	ereal = 0
 
 	# Check interactions with neighbouring cells
 	shifts = get_shifts(vects, real_cut_off)

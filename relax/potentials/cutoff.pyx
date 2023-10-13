@@ -1,5 +1,6 @@
 cimport relax.potentials.operations as ops
 import numpy as np
+import cython
 
 from ase import *
 
@@ -12,6 +13,10 @@ from cython.view cimport array as cvarray
 from cpython.array cimport array, clone
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double[:,:] get_normals(double[:,:] vects):
 	"""Returns the normal vectors for each
 	of the 3 of unit cell faces defined by the given 
@@ -37,6 +42,10 @@ cdef double[:,:] get_normals(double[:,:] vects):
 	return normals
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cpdef double[:,:] inflated_cell_truncation(double[:,:] vects, double cutoff):
 
 	cdef size_t i, count, shifts_no
@@ -93,6 +102,10 @@ cpdef double[:,:] inflated_cell_truncation(double[:,:] vects, double cutoff):
 	return ops.dot_mm(shifts,vects)
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cpdef double[:,:] translation_wrapper(double[:,:] vects, double cutoff):
 
 	cdef size_t i, count, shifts_no
@@ -145,6 +158,11 @@ cpdef double[:,:] get_shifts(double[:,:] vects, double[:,:] borders):
 	# return ops.dot_mm(shifts,vects)
 	return shifts
 	
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cpdef int check_lattice(double[:,:] vects, double old_volume, double volume,
 double min_length=1, double max_length_per=1000):
 	cdef double[:] norms
