@@ -14,6 +14,7 @@ from relax.potentials.coulomb.coulomb import *
 
 from relax.direction import *
 from relax.linmin import *
+from relax.finite_differences import finite_diff_grad
 
 import shutil
 COLUMNS = shutil.get_terminal_size().columns
@@ -200,7 +201,7 @@ class Descent:
 		if 'debug' in kwargs:
 			if kwargs['debug']:
 				finite_diff_grad(
-					atoms, grad, N, res_dict['Strains'], 0.1, potentials)
+					atoms, grad, N, res_dict['Strains'], 0.00001, potentials)
 		
 		# Gradient norm
 		gnorm = get_gnorm(grad,N)
