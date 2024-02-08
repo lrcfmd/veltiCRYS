@@ -37,6 +37,8 @@ from cpython.array cimport array, clone
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double[:,:] self_drv(double[:,:] stresses, int[:] charges, 
 	double alpha_drv, double volume, int N):
 	"""Derivative of the self term with respect to strains.
@@ -66,6 +68,8 @@ cdef double[:,:] self_drv(double[:,:] stresses, int[:] charges,
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double erfc_drv(double alpha, int charges, double dist) nogil:
 	"""The derivative of the real function that depends only 
 	on the pairwise distance between two ions.
@@ -85,6 +89,8 @@ cdef double erfc_drv(double alpha, int charges, double dist) nogil:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double[:,:] real_drv(double[:,:] grad, double[:,:] stresses, 
 	double[:,:] pos, double[:,:] vects,  int[:] charges,
 	double real_cut_off, double alpha, double alpha_drv, double volume, int N):
@@ -211,13 +217,14 @@ cdef double[:,:] real_drv(double[:,:] grad, double[:,:] stresses,
 								stresses[l][m] += drv
 		# Deallocate distance vector
 		free(rij)
-		rij = NULL
 
 	return grad
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double[:,:] recip_drv(double[:,:] grad, double[:,:] stresses, 
 	double[:,:] pos, double[:,:] vects,  double[:,:] rvects, int[:] charges,
 	double recip_cut_off, double alpha, double alpha_drv, double volume, int N):
@@ -313,7 +320,6 @@ cdef double[:,:] recip_drv(double[:,:] grad, double[:,:] stresses,
 
 		# Deallocate distance vector
 		free(rij)
-		rij = NULL
 
 	return grad
 

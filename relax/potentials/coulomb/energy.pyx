@@ -6,7 +6,6 @@ import csv
 import sys
 
 from cython.view cimport array as cvarray
-from libc.stdlib cimport malloc, free
 from cython.parallel import prange,parallel
 
 from libc cimport bool
@@ -15,7 +14,7 @@ from libc.math cimport *
 from libc.float cimport *
 from libc.limits cimport *
 from libc.stdio cimport printf
-from libc.stdlib cimport malloc,free,realloc
+from libc.stdlib cimport calloc,free
 import cython, shutil
 
 from relax.potentials.cutoff cimport inflated_cell_truncation as get_shifts
@@ -25,7 +24,7 @@ from relax.potentials.operations cimport get_real_distance
 from relax.potentials.operations cimport get_recip_distance
 from relax.potentials.operations cimport get_distance_vector
 from relax.potentials.operations cimport norm_m,norm
-from relax.potentials.operations import get_all_distances, get_min_dist
+from relax.potentials.operations cimport get_all_distances, get_min_dist
 
 from cpython.array cimport array, clone
 
@@ -37,6 +36,8 @@ from cpython.array cimport array, clone
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double ewald_self(int[:] charges, double alpha, int N) except? 0:                             
 	"""Calculate self interaction term.
 
@@ -61,7 +62,9 @@ cdef double ewald_self(int[:] charges, double alpha, int N) except? 0:
 
 
 @cython.boundscheck(False)
-@cython.wraparound(False)   
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)  
 cdef double ewald_real(double[:,:] pos, double[:,:] vects, 
 	int[:] charges, double alpha, double real_cut_off, int N) except? 0:
 	"""Calculate short range energy.
@@ -83,7 +86,7 @@ cdef double ewald_real(double[:,:] pos, double[:,:] vects,
 	if pos.shape[1]!=3 or vects.shape[1]!=3:
 		raise IndexError("Points are not 3-dimensional.")
 
-	cdef double cutoff, dist, ereal = 0
+	cdef double  dist, ereal = 0	# initialise energy value
 	cdef double** esum
 	cdef Py_ssize_t ioni, ionj, shift, shifts_no, i
 	cdef double[:,:] shifts
@@ -95,23 +98,19 @@ cdef double ewald_real(double[:,:] pos, double[:,:] vects,
 	else:
 		shifts_no = len(shifts)
 	
+	# set an array as zero shift
 	nil_array = array("d",[0,0,0])
 
-	ereal = 0
-	cutoff = real_cut_off
-
 	# create array with sums for each N*N position
-	esum = <double **> malloc(sizeof(double *) * N)
+	esum = <double **> calloc(N, sizeof(double *))
 	for ioni in range(N):
-		esum[ioni] = <double *> malloc(sizeof(double) * N)
-		for ionj in range(N):
-			esum[ioni][ionj] = 0
+		esum[ioni] = <double *> calloc(N, sizeof(double))
 
 	with nogil, parallel():
 		for ioni in prange(N, schedule='static'):
 
 			# Allocate thread-local memory for distance vector
-			rij = <double *> malloc(sizeof(double) * 3)
+			rij = <double *> calloc(3, sizeof(double))
 
 			for ionj in range(ioni, N):
 				if ioni != ionj:  # skip in case it's the same ion in original unit cell
@@ -132,6 +131,8 @@ cdef double ewald_real(double[:,:] pos, double[:,:] vects,
 					esum[ioni][ionj] += (charges[ioni]*charges[ionj] *
 												erfc(alpha*dist)/dist)
 
+			# Deallocate distance vector
+			free(rij)
 	
 	# Fill lower triangular matrix with symmetric values
 	for ioni in range(N):
@@ -151,6 +152,8 @@ cdef double ewald_real(double[:,:] pos, double[:,:] vects,
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double ewald_recip(double[:,:] pos, double[:,:] vects, double[:,:] rvects,
 	int[:] charges, double alpha, double recip_cut_off, int N) except? 0:
 	"""Calculate long range energy in reciprocal space.
@@ -175,7 +178,7 @@ cdef double ewald_recip(double[:,:] pos, double[:,:] vects, double[:,:] rvects,
 	cdef double* rij
 	cdef double** esum
 	cdef Py_ssize_t ioni, ionj, shift, shifts_no, i
-	cdef double cutoff, volume = abs(det3_3(vects))
+	cdef double volume = abs(det3_3(vects))
 	cdef double[:] nil_array
 	cdef double[:,:] shifts
 	cdef double k_2, krij, frac, term
@@ -188,13 +191,13 @@ cdef double ewald_recip(double[:,:] pos, double[:,:] vects, double[:,:] rvects,
 	else:
 		shifts_no = len(shifts)
 
-	cutoff = recip_cut_off
+	# set an array as zero shift
 	nil_array = array("d",[0,0,0])
 
 	# create array with sums for each N*N position
-	esum = <double **> malloc(sizeof(double *) * N)
+	esum = <double **> calloc(N, sizeof(double *))
 	for ioni in range(N):
-		esum[ioni] = <double *> malloc(sizeof(double) * N)
+		esum[ioni] = <double *> calloc(N, sizeof(double))
 		for ionj in range(N):
 			esum[ioni][ionj] = 0
 
@@ -202,7 +205,8 @@ cdef double ewald_recip(double[:,:] pos, double[:,:] vects, double[:,:] rvects,
 		for ioni in prange(N, schedule='static'):
 
 			# Allocate thread-local memory for distance vector
-			rij = <double *> malloc(sizeof(double) * 3)
+			rij = <double *> calloc(3, sizeof(double))
+
 
 			for ionj in range(ioni, N): 
 
@@ -222,7 +226,6 @@ cdef double ewald_recip(double[:,:] pos, double[:,:] vects, double[:,:] rvects,
 
 			# Deallocate distance vector
 			free(rij)
-			rij = NULL
 
 	# Fill lower triangular matrix with symmetric values
 	for ioni in prange(N, nogil=True, schedule='static'):

@@ -6,7 +6,7 @@ import csv
 import sys
 
 from cython.view cimport array as cvarray
-from libc.stdlib cimport malloc, free
+from libc.stdlib cimport calloc, free
 from cython.parallel import prange,parallel
 
 from libc cimport bool
@@ -15,7 +15,6 @@ from libc.math cimport *
 from libc.float cimport *
 from libc.limits cimport *
 from libc.stdio cimport printf
-from libc.stdlib cimport malloc,free,realloc
 import cython, shutil
 
 from relax.potentials.cutoff cimport inflated_cell_truncation as get_shifts
@@ -25,7 +24,7 @@ from relax.potentials.operations cimport get_real_distance
 from relax.potentials.operations cimport get_recip_distance
 from relax.potentials.operations cimport get_distance_vector
 from relax.potentials.operations cimport norm_m,norm
-from relax.potentials.operations import get_all_distances, get_min_dist
+from relax.potentials.operations cimport get_all_distances, get_min_dist
 
 from cpython.array cimport array, clone
 
@@ -33,7 +32,10 @@ from cpython.array cimport array, clone
 '''																						'''
 '''									BUCKINGHAM											'''
 '''																						'''
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double cterm_drv(double A, double C, double rho, double dist, double alpha, double term):
 	"""The derivative of the real function that depends only 
 	on the pairwise distance between two ions.
@@ -52,7 +54,10 @@ cdef double cterm_drv(double A, double C, double rho, double dist, double alpha,
 	)
 	return drv
 
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double[:,:] real_drv(buck, double[:,:] grad, double[:,:] stresses, 
 	double[:,:] pos, double[:,:] vects,  cnp.ndarray chemical_symbols,
 	double real_cut_off, double alpha, double alpha_drv, double volume, int N):
@@ -86,6 +91,7 @@ cdef double[:,:] real_drv(buck, double[:,:] grad, double[:,:] stresses,
 	cdef Py_ssize_t shift, shifts_no, i, l, m
 	cdef double[:,:] shifts
 	cdef double[:] nil_array, part_drv
+	cdef double A, rho, C
 
 	shifts = get_shifts(vects, real_cut_off)
 	if shifts == None:
@@ -97,7 +103,7 @@ cdef double[:,:] real_drv(buck, double[:,:] grad, double[:,:] stresses,
 	part_drv = array("d",[0,0,0])  
 
 	# Allocate thread-local memory for distance vector
-	rij = <double *> malloc(sizeof(double) * 3)
+	rij = <double *> calloc(3, sizeof(double))
 
 	for ioni in range(N):
 		for ionj in range(N):
@@ -182,11 +188,14 @@ cdef double[:,:] real_drv(buck, double[:,:] grad, double[:,:] stresses,
 
 	# Deallocate distance vector
 	free(rij)
-	rij = NULL
 
 	return grad
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 cdef double[:,:] recip_drv(buck, double[:,:] grad, double[:,:] stresses, 
 double[:,:] pos, double[:,:] vects,  double[:,:] rvects, cnp.ndarray chemical_symbols,
 double recip_cut_off, double alpha, double alpha_drv, double volume, int N):
@@ -214,11 +223,11 @@ double recip_cut_off, double alpha, double alpha_drv, double volume, int N):
 
 	cdef double cutoff, drv, dist
 	cdef double term_exp, term_c, term_erfc, term_a
-	cdef double A, rho, C
 	cdef double[:,:] shifts
 	cdef Py_ssize_t shifts_no, i
 	cdef double* rij
 	cdef double[:] nil_array, part_drv
+	cdef double A, rho, C, k_2, k_3
 
 	nil_array = array("d",[0,0,0])
 	part_drv = array("d",[0,0,0])
@@ -231,7 +240,7 @@ double recip_cut_off, double alpha, double alpha_drv, double volume, int N):
 		shifts_no = len(shifts)
 
 	# allocate memory for distance vector
-	rij = <double *> malloc(sizeof(double) * 3)
+	rij = <double *> calloc(3, sizeof(double))
 
 	for ioni in range(N):
 		for ionj in range(N):
@@ -243,10 +252,6 @@ double recip_cut_off, double alpha, double alpha_drv, double volume, int N):
 				A = buck[pair]['par'][0]
 				rho = buck[pair]['par'][1]
 				C = buck[pair]['par'][2]
-
-				rij[0] = 0
-				rij[1] = 0
-				rij[2] = 0
 
 				# Get distance vector
 				rij = get_distance_vector(rij, pos[ioni], pos[ionj], nil_array)
@@ -301,11 +306,14 @@ double recip_cut_off, double alpha, double alpha_drv, double volume, int N):
 
 	# Deallocate distance vector
 	free(rij)
-	rij = NULL
 
 	return grad
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef double[:,:] self_drv(buck, double[:,:] stresses, cnp.ndarray chemical_symbols,
@@ -326,6 +334,7 @@ double alpha, double alpha_drv, double volume, int N):
 
 	"""
 	cdef Py_ssize_t i, j, l, m
+	cdef double A, rho, C
 
 	for i in range(N):
 		for j in range(N):
