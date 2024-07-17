@@ -1,5 +1,5 @@
 cimport numpy as cnp
-from relax.potentials.potential cimport EwaldPotential
+from relax.analytic_potentials.potential cimport EwaldPotential
 
 
 '''																						'''

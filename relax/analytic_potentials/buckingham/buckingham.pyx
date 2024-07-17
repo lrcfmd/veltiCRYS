@@ -13,11 +13,11 @@ from libc.limits cimport *
 from libc.stdio cimport printf
 import cython, shutil
 
-from relax.potentials.cutoff cimport inflated_cell_truncation as get_shifts
-from relax.potentials.operations cimport det as det3_3
+from relax.analytic_potentials.cutoff cimport inflated_cell_truncation as get_shifts
+from relax.analytic_potentials.operations cimport det as det3_3
 
-from relax.potentials.buckingham.energy cimport *
-from relax.potentials.buckingham.gradient cimport *
+from relax.analytic_potentials.buckingham.energy cimport *
+from relax.analytic_potentials.buckingham.gradient cimport *
 
 
 '''																						'''

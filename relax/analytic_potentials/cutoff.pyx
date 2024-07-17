@@ -1,4 +1,4 @@
-cimport relax.potentials.operations as ops
+cimport relax.analytic_potentials.operations as ops
 import numpy as np
 import cython
 

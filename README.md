@@ -31,7 +31,7 @@ You can use pip and install the required packages with the command ```pip instal
 - numpy
 - ase
 - cython
-- jupyter notebook (optional, only if using the run.ipynb file)
+- torch (if the autodiff version is to be used)
 
 #### 2. Requirements.txt
 Otherwise, while the Python environment is activated, you can install the required packages using the given [requirements](requirements.txt) text file (please use a recent version of Python e.g. 3.11)
@@ -60,7 +60,7 @@ and install
 - numpy
 - ase
 - cython
-- jupyter notebook (optional, only if using the run.ipynb file)
+- torch (if the autodiff version is to be used)
 
 using the ```conda install``` command. 
 
@@ -93,178 +93,35 @@ Any files and folders produced with this operation can be removed by running the
 In order to perform a geometry optimization calculation, run the Python script in file [run.py](run.py) with
 
 ```console
-  python run.py [-h] [-i --input] [-r] [-u] [-out --out_frequency]
-                             [-o --output] [-s --max_step]
-                             [-m --relaxation_method]
-
-  Define input
+  python run.py [-h] [-i --input] [-r RELAX] [-u] [-out --out_frequency]
+              [-o --output] [-su --max_step] [-sl --min_step]
+              [-m --relaxation_method] [-d] [-ln --line_search]
+              --mode
+  
+  --mode		    select between analytical (*analytical*) and autodifferentiation (*auto*) modes
 
   optional arguments:
-    -h, --help             show this help message and exit
-    -i --input             .cif file to read
-    -r, --relax            Perform structural relaxation
-    -u, --user             Wait for user input after every iteration
-    -out --out_frequency   Print files every n iterations
-    -o --output            Output directory
-    -s --max_step          Use upper bound step size
-    -m --relaxation_method Choose updating method
-    -res, --reset         Force direction reset every 3N+9 iterations.
-    -d, --debug           Print numerical derivatives.
+    -h, --help              show this help message and exit
+    -i --input              .cif file to read
+    -r, --relax             Perform structural relaxation
+    -u, --user              Wait for user input after every iteration
+    -out, --out_frequency   Print files every n iterations
+    -o, --output            Output directory
+    -su, --max_step         Set upper bound of step size
+    -sl, --min_step         Set lower bound of step size
+    -m, --relaxation_method Choose updating method
+    -res, --reset           Force direction reset every 3N+9 iterations.
+    -d, --debug             Print numerical derivatives.
+    -ln, --line_search      Type name of line search method and optional parameter value. 
+    			     One of: 
+      				-gnorm_scheduled_bisection <order>
+				-scheduled_bisection <schedule>
+				-scheduled_exp <exponent>
+				-steady_step
 
 ```
 
-You will need to add the necessary elements with their charge in **charge_dict** of file *run* and adjust the corresponding input paths in **DATAPATH** of *utils.py*. **DATAPATH** needs to contain the library files *buck.lib* with the Buckingham parameters and *radii.lib* with the radii information of the element ions in a folder *libraries*. Such files can be found in the corresponding folder of the current repository. These contain the required information for the dataset [data](data).
-
-Alternatively, you can open the jupyter notebook file [run.ipynb](run.ipynb).
-
-
-### Classes 
-
-The essential classes for energy calculation are the Cython extension types Coulomb and Buckingham. These include methods for evaluating both of the energy potentials using the Ewald summation expansion. They can be accessed by adding the following lines to a Python script:
-
-```python
-  from cysrc.buckingham import *
-  from cysrc.coulomb import *
-
-```
-
-The class objects are defined as follows:
-
-&nbsp;
-
-#### Coulomb energy
-_________________________
-
-This is the electrostatic energy existing due to positively and negatively charged ions in the structure. It is a summation of terms each one of which corresponds to a pairwise interaction dependent on the distance between the ions. The alpha parameter depends on the cutoff values and is defined according to [Catlow's work](https://www.tandfonline.com/doi/abs/10.1080/08927028808080944). The cutoff value is then used in the `inflated_cell_truncation` method of [cutoff.pxd](cysrc/cutoff.pxd), a proposed geometric method of finding the images of neighbouring ions.
-
-```python
-  Cpot = Coulomb(chemical_symbols, N, charge_dict, alpha, filename)
-
-```
-
-Arguments of this function include:
- 
-| Argument | Function | 
-| ---------------- | -------------------------------------------- |
-| N                | Number of ions in unit cell                  |
-| chemical_symbols | Ions' chemical symbols in resp. positions    |
-| charge_dict      | Dictionary of ion charge per element         |
-| filename         | File with Madelung constants (optional)      |
-| alpha            | Balance between reciprocal and real space (optional)  |
-
-
-&nbsp;
-
-#### Buckingham energy
-_________________________
-
-Buckingham energy potential accounts for Pauli repulsion energy and van der Waals energy between two atoms as a function of the interatomic distance between them. The two terms of each Buckingham summand represent repulsion and attraction respectively. Parameters A, C and ρ are emperically determined in literature. These parameters have to be defined in a library file (here *buck.lib*) in the following format:
-```
-buck
-element_name_1a core element_name_1b core  A   ρ C min_dist max_dist
-element_name_2a core element_name_2b core  A   ρ C min_dist max_dist
-```
-
-```python 
-  Bpot = Buckingham(filename, chemical_symbols, alpha, radius_lib, radii, limit)
-
-```
-
-Arguments of this function include:
-
-| Argument | Function | 
-| ---------------- | -----------------------------------------    |
-| filename        | Library file with Buckingham constants        |
-| chemical_symbols| Ions' chemical symbols in resp. positions     |
-| radius_lib      | Library file with radius value per element ion|
-| radii           | Array with radius per ion position (optional) |
-| limit           | Lower bound limit of pairwise distances       |
-| alpha           | Balance between reciprocal and real space (optional)   |
-  
-
-&nbsp;
-
-Both classes need to be set with cutoff parameters using method
-
-```python
-  set_cutoff_parameters(self, vects, N, accuracy, real, reciprocal)
-
-```
-before each energy calculation, if the unit cell undergoes any changes. The cutoff values are then used to calculate pairwise distances of ions in neighbouring cells using the `inflated_cell_truncation method` in [cutoff.pyx](cysrc/cutoff.pyx). Each class contains also the methods
-
-```python
-  print_parameters(self)
-  energy(self, atoms, pos_array, vects_array, N)
-  get_energies(self)
-  gradient(self, atoms, pos_array, vects_array, N)
-
-```
-
-Arguments of these functions include:
-
-| Argument | Function | 
-| ---------------- | -----------------------------------------    |
-| N                | Number of ions in unit cell                  |
-| pos_array        | Array with the atom positions (Nx3)          |
-| vects_array      | Array with the lattice vectors (3x3)         |
-| atoms            | Object of ase Atoms class (optional)         |
-
-
-Both energy (`energy`) and derivatives (`gradient`) can be calculated  either by defining parameters `N, pos_array, vects_array` or `atoms`.
-
-&nbsp;
-
-#### Descent
-_________________________
-
-This class instantiates the optimization procedure. Its method `repeat` performs repeated iterations `iter_step` of nonlinear minimization. It can be configured with various tolerances that will make up the stopping criteria of the minimization. Every `iter_step` call returns a dictionary with all values related to the current iteration, so that the returning values include the gradient of the current configuration, the new direction vector for the next step, the ion positions' array, the strains tensor, the lattice vectors' array, the iteration number, the step size used, the gradient norm of the current configuration and the energy value of the current configuration
-You can always import the Descent class from [descent.py](descent.py) and define an object for running optimizations with 
-
-```python
-  descent = Descent()
-
-```
-
-Arguments of this function include (all optional):
-
-| Argument | Function | 
-| ---------------- | -----------------------------------------    |
-| iterno           | Maximum iteration number                     |
-| ftol             | Energy value difference tolerance            |
-| gtol             | Gradient norm tolerance                      |
-| tol              | Step (step*direction_norm)/\|\|x\|\|) tolerance  |
-| gmax             | Gradient component tolerance                 |
-
-
-The method that executes the optimization is
-
-```python
-  repeat(self, init_energy, atoms, potentials, outdir, outfile,
-    step_func, direction_func, strains, usr_flag, max_step, out)
-
-```
-
-Arguments of this function include:
-
-| Argument | Function | 
-| ---------------- | -----------------------------------------    |
-| init_energy      | Initial energy value                         |
-| atoms            | Object of ase Atoms class                    |
-| potentials       | Dict. with potential objects indexed by name |
-| outdir           | Folder containing any output files           |
-| outfile          | Name for output files                        |
-| step_func        | Function for line search (optional)          |
-| direction_func   | Function for calculating direction vector    |
-| strains          | Initial strain array (optional)              |
-| usr_flag         | Initiative to stop for input after each iteration (optional)|
-| max_step         | Upper bound for step size   (optional)       |
-| out              | Interval of output production (optional)     |
-
-
-
-where `step_func` and `direction_func` should be procedures. Line minimisation procedures can be defined in [linmin.py](pysrc/linmin.py) and procedures for the direction vector can be defined in [direction.py](pysrc/direction.py). Please refer to the examples already defined.
-
-&nbsp;
+You might need to add the necessary elements with their charge in **charge_dict** of file *run.py*. The library file *buck.lib* in *libraries* needs to include with the element-pair-dependent Buckingham parameters. The files already contain the required information for the dataset [data](data).
 
 ## Input
 

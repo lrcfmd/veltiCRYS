@@ -9,7 +9,7 @@ from cython.view cimport array as cvarray
 from libc.stdlib cimport calloc, free
 from cython.parallel import prange,parallel
 
-from relax.potentials.potential cimport EwaldPotential
+from relax.analytic_potentials.potential cimport EwaldPotential
 
 from libc cimport bool
 from libc.stdio cimport *                                                                
@@ -20,14 +20,14 @@ from libc.stdio cimport printf
 from libc.stdlib cimport calloc,free,realloc
 import cython, shutil
 
-from relax.potentials.cutoff cimport inflated_cell_truncation as get_shifts
+from relax.analytic_potentials.cutoff cimport inflated_cell_truncation as get_shifts
 
-from relax.potentials.operations cimport det as det3_3
-from relax.potentials.operations cimport get_real_distance 
-from relax.potentials.operations cimport get_recip_distance
-from relax.potentials.operations cimport get_distance_vector
-from relax.potentials.operations cimport norm_m,norm
-from relax.potentials.operations import get_all_distances, get_min_dist
+from relax.analytic_potentials.operations cimport det as det3_3
+from relax.analytic_potentials.operations cimport get_real_distance 
+from relax.analytic_potentials.operations cimport get_recip_distance
+from relax.analytic_potentials.operations cimport get_distance_vector
+from relax.analytic_potentials.operations cimport norm_m,norm
+from relax.analytic_potentials.operations import get_all_distances, get_min_dist
 
 from cpython.array cimport array, clone
 

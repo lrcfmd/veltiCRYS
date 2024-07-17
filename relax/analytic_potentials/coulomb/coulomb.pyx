@@ -13,11 +13,11 @@ from libc.limits cimport *
 from libc.stdio cimport printf
 import cython, shutil
 
-from relax.potentials.cutoff cimport inflated_cell_truncation as get_shifts
-from relax.potentials.operations cimport det as det3_3
+from relax.analytic_potentials.cutoff cimport inflated_cell_truncation as get_shifts
+from relax.analytic_potentials.operations cimport det as det3_3
 
-from relax.potentials.coulomb.energy cimport *
-from relax.potentials.coulomb.gradient cimport *
+from relax.analytic_potentials.coulomb.energy cimport *
+from relax.analytic_potentials.coulomb.gradient cimport *
 
 '''																						'''
 '''									  COULOMB 											'''
