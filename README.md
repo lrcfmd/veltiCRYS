@@ -31,7 +31,7 @@ You can use pip and install the required packages with the command ```pip instal
 - numpy
 - ase
 - cython
-- jupyter notebook (optional, only if using the run.ipynb file)
+- torch (if the autodiff version is to be used)
 
 #### 2. Requirements.txt
 Otherwise, while the Python environment is activated, you can install the required packages using the given [requirements](requirements.txt) text file (please use a recent version of Python e.g. 3.11)
@@ -60,7 +60,7 @@ and install
 - numpy
 - ase
 - cython
-- jupyter notebook (optional, only if using the run.ipynb file)
+- torch (if the autodiff version is to be used)
 
 using the ```conda install``` command. 
 
@@ -93,11 +93,12 @@ Any files and folders produced with this operation can be removed by running the
 In order to perform a geometry optimization calculation, run the Python script in file [run.py](run.py) with
 
 ```console
-  python run.py [-h] [-i --input] [-r] [-u] [-out --out_frequency]
-                             [-o --output] [-s --max_step]
-                             [-m --relaxation_method]
-
-  Define input
+  python run.py [-h] [-i --input] [-r RELAX] [-u] [-out --out_frequency]
+              [-o --output] [-su --max_step] [-sl --min_step]
+              [-m --relaxation_method] [-d] [-ln [--line_search ...]]
+              --mode
+  
+  --mode		    select between analytical (*analytical*) and autodifferentiation (*auto*) modes
 
   optional arguments:
     -h, --help             show this help message and exit
@@ -113,9 +114,7 @@ In order to perform a geometry optimization calculation, run the Python script i
 
 ```
 
-You will need to add the necessary elements with their charge in **charge_dict** of file *run* and adjust the corresponding input paths in **DATAPATH** of *utils.py*. **DATAPATH** needs to contain the library files *buck.lib* with the Buckingham parameters and *radii.lib* with the radii information of the element ions in a folder *libraries*. Such files can be found in the corresponding folder of the current repository. These contain the required information for the dataset [data](data).
-
-Alternatively, you can open the jupyter notebook file [run.ipynb](run.ipynb).
+You will need to add the necessary elements with their charge in **charge_dict** of file *run.py* and adjust the corresponding input paths in **DATAPATH** of *utils.py*. **DATAPATH** needs to contain the library files *buck.lib* with the Buckingham parameters and *radii.lib* with the radii information of the element ions in a folder *libraries*. Such files can be found in the corresponding folder of the current repository. These contain the required information for the dataset [data](data).
 
 
 ### Classes 
