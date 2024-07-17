@@ -1,17 +1,9 @@
 import os,sys
-import shutil
-import argparse
-import fileinput
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from ase.visualize import view
-from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
-                               AutoMinorLocator)
 from ase.geometry import wrap_positions, get_distances
 
-from relax.potentials.coulomb.coulomb import *
-from relax.potentials.buckingham.buckingham import *
+from relax.analytic_potentials.coulomb.coulomb import *
+from relax.analytic_potentials.buckingham.buckingham import *
 from ase.cell import Cell
 
 def finite_diff_grad(atoms, analytical_grad, ions, 
@@ -272,66 +264,6 @@ def finite_diff_hess(atoms, analytical_hess, strains,
 			count += 1
 	return hessian
 
-def print_forces_vs_diffs(folder, struct, forces, diffs, displacement):
-	"""Print dataframe with finite differences moving every ion to 
-	every direction and analytical derivative.
-
-	"""
-	df = pd.DataFrame(diffs)
-	df.columns = ['diffs_' + str(col) for col in df.columns]
-	df['displacement'] = displacement
-	df = df.set_index('ion_'+df.index.astype(str))
-
-	dff = pd.DataFrame(forces)
-	dff.columns = ['forces_' + str(col) for col in dff.columns]
-	dff = dff.set_index('ion_'+dff.index.astype(str))
-	df = df.join(dff)
-
-	arrays = [[folder], [struct], df.index.tolist()]
-	index = pd.MultiIndex.from_product(arrays, names=('folder', 'structure', 'ion'))
-	df.set_index(index, inplace=True)
-	print(df)
-
-	fileout = "src/finite_differences/fin_diffs_all_coords_all_atoms_3_structs.csv"
-	if not os.path.isfile(fileout):
-		try:
-			with open(fileout, 'w') as f:
-				df.to_csv(f, header=True)
-		finally:
-			f.close()
-	else:
-		try:
-			with open(fileout, 'a') as f:
-				df.to_csv(f, header=False)
-		finally:
-			f.close()
-	
-def forces_diffs_angle(folder, struct, forces, diffs):
-	diffs = flatten(diffs)
-	forces = flatten(forces)
-
-	df = pd.DataFrame(diffs)
-	df = df.T.join(pd.DataFrame(forces).T, lsuffix='diffs', rsuffix='forces')
-	df['cos'] = np.dot(diffs,forces)/(np.linalg.norm(diffs)*np.linalg.norm(forces))
-	print("Diffs vs Forces angle cos: {}".format(np.dot(diffs,forces)/(np.linalg.norm(diffs)*np.linalg.norm(forces))))
-
-	arrays = [[folder], [struct]]
-	index = pd.MultiIndex.from_product(arrays, names=('folder', 'structure'))
-	df.set_index(index, inplace=True)
-
-	# fileout = "finite_differences/diffs_forces_angles.csv"
-	# if not os.path.isfile(fileout):
-	# 	try:
-	# 		with open(fileout, 'w') as f:
-	# 			df.to_csv(f, header=True)
-	# 	finally:
-	# 		f.close()
-	# else:
-	# 	try:
-	# 		with open(fileout, 'a') as f:
-	# 			df.to_csv(f, header=False)
-	# 	finally:
-	# 		f.close()
 
 def flatten(positions):
 	vector = []

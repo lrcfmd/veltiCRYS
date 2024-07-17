@@ -1,26 +1,18 @@
-import sys, os
-import shutil
+import os, torch
+from pathlib import Path
 import argparse
-import fileinput
 import numpy as np
 
-from cmath import pi
-from cmath import exp
-import cmath
-import math
-
 from ase import *
-from ase.visualize import view
 from ase.io import read as aread
 from ase.io import write as awrite
-from ase.visualize.plot import plot_atoms
+from ase.visualize import view
 
-from relax.potentials.operations import get_min_dist
-from relax.potentials.buckingham.buckingham import *
-from relax.potentials.coulomb.coulomb import *
-from relax.direction import *
-
-import timeit
+from relax.optim.gradient_descent import GD
+from relax.optim.conjugate_gradient import *
+from relax.optim.lbfgs import *
+from relax.optim.cubic_minimization.main import *
+from relax.optim.linmin import *
 
 charge_dict = {
 	'O' : -2.,
@@ -36,11 +28,14 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		description='Define input')
 	parser.add_argument(
+        'choose_mode', metavar='--mode', type=str,
+        help='Choose between packages: \'analytic\' or \'auto\'.')
+	parser.add_argument(
 		'-i', metavar='--input', type=str,
 		help='.cif file to read')
 	parser.add_argument(
-		'-r', '--relax', action='store_true',
-		help='Perform structural relaxation')
+		'-r', '--relax', type=int,
+		help='Perform structural relaxation for given iterations')
 	parser.add_argument(
 		'-u', '--user', action='store_true',
 		help='Wait for user input after every iteration')
@@ -60,131 +55,102 @@ if __name__ == "__main__":
         '-m', metavar='--relaxation_method', type=str,
         help='Choose updating method')
 	parser.add_argument(
-        '-res', '--reset', action='store_true',
-        help='Force direction reset every 3N+9 iterations.')
-	parser.add_argument(
         '-d', '--debug', action='store_true',
         help='Print numerical derivatives.')
-	
+	parser.add_argument(
+		'-ln', metavar='--line_search',
+		nargs='*', 
+		help='Type name of line search method and optional parameter value. One of: \n\
+      			-gnorm_scheduled_bisection <order>\n\
+				-scheduled_bisection <schedule>\n\
+				-scheduled_exp <exponent>\n\
+				-steady_step')
 	args = parser.parse_args()
 
-	############################## INPUT ##############################
+
+	"""  INPUT  """
 	structure = None
 	filename = args.i
+
 	if filename:
 		atoms = aread(filename)
-		name = filename.rstrip('.cif').split('/')[-1]
-		if name.isnumeric():
-			name = "structure_"+name
-		structure = name
+		structure = Path(filename).stem
+		
+		# Give name to structure
+		if structure.isnumeric():
+			structure = "structure_"+structure+"_"+str(atoms.symbols)
 	else:
-		atoms = Atoms("O2",
-
-					cell=[[4, 0.00, 0.00],	
-						[0.00, 4, 0.00],
-						[0.00, 0.00, 4]],
-					positions=[[1, 1, 1],
-								 [3.5, 3.5, 3.5]],
-					pbc=True)
-		structure = "O"
+		from examples import *
+		atoms, structure = get_example3()
 		print("Using custom Atoms object as input.")
 	
 	
-	########################## INITIALISATION #########################
+	"""  INITIALISATION  """
 	N 					= len(atoms.positions)
-	vects 				= np.array(atoms.get_cell())
-	volume 				= abs(np.linalg.det(vects))
 	accuracy			= 0.000000000000000000001
-	chemical_symbols	= np.array(atoms.get_chemical_symbols())
-
-	# avoid truncating too many terms
+	outdir = args.o if args.o else "output/"
+ 
+	# Avoid truncating too many terms
 	assert((-np.log(accuracy)/N**(1/6)) >= 1)
 
+	# Choosing package
+	if 'an' in args.choose_mode:
+		from relax.optim.analytic import repeat
+	else:
+		from relax.optim.autodiff import repeat
 
-	########################## DEFINITIONS ############################	
-	# Define Coulomb potential object
-	libfile = "libraries/madelung.lib"
-	Cpot = Coulomb(
-		chemical_symbols=chemical_symbols,
-		N=N,
+
+	"""  RELAXATION  """   
+	lnsearch = LnSearch(
+		max_step=args.su if args.su else 1e-3,
+		min_step=args.sl if args.sl else 1e-5,
+		schedule=100,
+		exponent=0.999,
+		order=10,
+		gnorm=0
+	)
+	if args.ln:
+		line_search_fn = args.ln[0]
+	else:
+		line_search_fn = 'steady_step'
+	if args.ln:
+		if len(args.ln)==2:
+			if args.ln[0] == 'gnorm_scheduled_bisection':
+				lnsearch.order = float(args.ln[1])
+			elif args.ln[0] == 'scheduled_bisection':
+				lnsearch.schedule = int(args.ln[1])
+			elif args.ln[0] == 'scheduled_exp':
+				lnsearch.exp = float(args.ln[1])
+
+	iterno = 0
+	if args.relax is not None:
+		iterno = args.relax
+
+	# Special case for BFGS, can change in the future
+	if args.m=='BFGS':
+		import sys
+		from relax.optim.bfgs import BFGS
+		optimizer = BFGS(charge_dict=charge_dict,
+				   atoms=atoms,
+				   max_iter=iterno,
+				   outfile=outdir+structure+'/'+structure)
+		optimizer.run()
+		sys.exit()
+  
+	optimizer = GD(lnsearch)
+	if args.m is not None:
+		optimizer = globals()[args.m](lnsearch)	
+		
+	iteration = repeat(
+		atoms=atoms, 
+		outdir=outdir,
+		outfile=structure,
 		charge_dict=charge_dict,
-		filename=libfile)
-	Cpot.set_cutoff_parameters(
-		vects=vects, 
-		N=N)
-	Cpot.energy(atoms)
-	coulomb_energies = Cpot.get_all_ewald_energies()
-	
-	# Define Buckingham potential object
-	libfile = "libraries/buck.lib"
-	Bpot = Buckingham(
-		filename=libfile, 
-		chemical_symbols=chemical_symbols, 
-		)
-	Bpot.set_cutoff_parameters(
-		vects=vects, 
-		N=N)
-	Bpot.energy(atoms)
-	buckingham_energies = Bpot.get_all_ewald_energies()
-
-	# Print Ewald-related parameters
-	Cpot.print_parameters()
-	Bpot.print_parameters()
-
-
-	########################### RELAXATION #############################
-	from relax.descent import *
-	import time
-
-	potentials = {}
-	initial_energy = 0
-
-	desc = Descent(iterno=50000)
-	
-	initial_energy += coulomb_energies['All']
-	potentials['Coulomb'] = Cpot
-
-	initial_energy += buckingham_energies['All']
-	potentials['Buckingham'] = Bpot
-
-	outdir = args.o if args.o else "output/"
-	if not os.path.isdir(outdir):
-		os.mkdir(outdir) 
-	
-	direction = GD
-	if args.m:
-		if "CG" in args.m:
-			direction = CG
-	
-	prettyprint({
-		'Chemical Symbols':chemical_symbols, 
-		'Positions':atoms.positions, \
-		'Cell':atoms.get_cell(), 
-		'Electrostatic energy':coulomb_energies, 
-		'Interatomic energy':buckingham_energies, \
-		'Total energy':initial_energy})
-
-	iteration = {'Energy': initial_energy}
-	
-	from relax.linmin import *
-	from utility import utility
-
-	if args.relax:
-
-		desc.iterno = 70000
-		evals, iteration = desc.repeat(
-			init_energy=iteration['Energy'],
-			atoms=atoms, 
-			potentials=potentials, 
-			outdir=outdir,
-			outfile=structure,
-			direction_func=direction,
-			step_func=steady_step,
-			usr_flag=args.user,
-			max_step=args.su if args.su else 0.01,
-			min_step=args.sl if args.sl else 0.00001,
-			out=args.out if args.out else 1,
-			reset=args.reset if args.reset else False,
-			debug=args.debug if args.debug else False,
-			params=['ions','lattice']
-			)
+		optimizer=optimizer, 
+		line_search_fn=line_search_fn,
+		usr_flag=args.user, 
+		out=args.out if args.out else 1, 
+		debug=args.debug if args.debug else False,
+		iterno=iterno
+	)
+	view(atoms)
